@@ -3,7 +3,7 @@
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold text-gray-800">Clientes</h1>
-    <a href__="{{ route('clientes.create') }}"
+    <a href="{{ route('clientes.create') }}"
        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
         + Nuevo Cliente
     </a>
@@ -33,8 +33,8 @@
                 </td>
                 <td class="px-4 py-3 text-center">
                     <div class="flex justify-center gap-3">
-                        <a href__="{{ route('clientes.show', $cliente) }}" class="text-indigo-600 hover:underline">Ver</a>
-                        <a href__="{{ route('clientes.edit', $cliente) }}" class="text-gray-500 hover:underline">Editar</a>
+                        <a href="{{ route('clientes.show', $cliente) }}" class="text-indigo-600 hover:underline">Ver</a>
+                        <a href="{{ route('clientes.edit', $cliente) }}" class="text-gray-500 hover:underline">Editar</a>
                         <form method="POST" action="{{ route('clientes.destroy', $cliente) }}"
                               onsubmit="return confirm('¿Eliminar este cliente?')">
                             @csrf @method('DELETE')

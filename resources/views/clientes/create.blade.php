@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center gap-3 mb-6">
-        <a href__="{{ route('clientes.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
+        <a href="{{ route('clientes.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
         <h1 class="text-2xl font-bold text-gray-800">Nuevo Cliente</h1>
     </div>
 
@@ -70,7 +70,7 @@
                         class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
                     Guardar Cliente
                 </button>
-                <a href__="{{ route('clientes.index') }}"
+                <a href="{{ route('clientes.index') }}"
                    class="px-6 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                     Cancelar
                 </a>
