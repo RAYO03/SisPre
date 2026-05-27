@@ -12,7 +12,7 @@ class Cuota extends Model
         'capital', 'interes', 'cuota_total',
         'saldo_restante', 'monto_pagado', 'estado',
     ];
-
+    
     protected $casts = [
         'fecha_vencimiento' => 'date',
         'capital' => 'decimal:2',
