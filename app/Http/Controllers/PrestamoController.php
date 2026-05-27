@@ -6,7 +6,7 @@ use App\Models\Cliente;
 use App\Http\Requests\PrestamoRequest;
 use App\Services\AmortizacionService;
 use Illuminate\Support\Facades\DB;
-
+use Carbon\Carbon;
 class PrestamoController extends Controller
 {
     public function __construct(private AmortizacionService $amortizacion) {}
@@ -18,7 +18,7 @@ class PrestamoController extends Controller
     }
 
     public function create()
-    {
+    {       
         $clientes = Cliente::orderBy('nombre')->get();
         return view('prestamos.create', compact('clientes'));
     }
@@ -32,7 +32,11 @@ class PrestamoController extends Controller
                 $data['tasa_anual'],
                 $data['plazo_meses']
             );
-            $data['estado'] = 'solicitado';
+
+            $data['fecha_vencimiento'] = Carbon::parse($data['fecha_inicio'])
+                                        ->addMonths((int) $data['plazo_meses']);
+            
+                                        $data['estado'] = 'solicitado';
 
             $prestamo = Prestamo::create($data);
             $this->amortizacion->guardarTabla($prestamo);
