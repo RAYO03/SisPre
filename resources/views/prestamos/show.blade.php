@@ -5,10 +5,10 @@
 
     <div class="flex items-start justify-between mb-6">
         <div class="flex items-center gap-3">
-            <a href__="{{ route('prestamos.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
+            <a href="{{ route('prestamos.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Préstamo #{{ $prestamo->id }}</h1>
-                <a href__="{{ route('clientes.show', $prestamo->cliente) }}"
+                <a href="{{ route('clientes.show', $prestamo->cliente) }}"
                    class="text-sm text-indigo-600 hover:underline">
                     {{ $prestamo->cliente->nombre_completo }}
                 </a>
@@ -61,7 +61,7 @@
         </form>
         @endif
         @if(in_array($prestamo->estado, ['activo','en_mora']))
-        <a href__="{{ route('pagos.create', $prestamo) }}"
+        <a href="{{ route('pagos.create', $prestamo) }}"
            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">
             💵 Registrar Pago
         </a>
