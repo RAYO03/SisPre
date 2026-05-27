@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center gap-3 mb-6">
-        <a href__="{{ route('prestamos.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
+        <a href="{{ route('prestamos.index') }}" class="text-gray-400 hover:text-gray-600">← Volver</a>
         <h1 class="text-2xl font-bold text-gray-800">Nuevo Préstamo</h1>
     </div>
 
@@ -75,7 +75,7 @@
                     <div>
                         <p class="text-xs text-indigo-500">Cuota Mensual</p>
                         <p class="text-xl font-bold text-indigo-800" id="sim_cuota">—</p>
-                    </div>
+                    </div>  
                     <div>
                         <p class="text-xs text-indigo-500">Total a Pagar</p>
                         <p class="text-xl font-bold text-indigo-800" id="sim_total">—</p>
@@ -92,7 +92,7 @@
                         class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
                     Crear Préstamo
                 </button>
-                <a href__="{{ route('prestamos.index') }}"
+                <a href="{{ route('prestamos.index') }}"
                    class="px-6 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                     Cancelar
                 </a>
