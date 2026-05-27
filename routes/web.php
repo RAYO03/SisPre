@@ -27,9 +27,16 @@ Route::middleware('auth')->group(function () {
 
     // PRÉSTAMOS
     Route::resource('prestamos', PrestamoController::class);
+    Route::patch('prestamos/{prestamo}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
+    Route::patch('prestamos/{prestamo}/activar', [PrestamoController::class, 'activar'])->name('prestamos.activar');
 
     // PAGOS
-    Route::resource('pagos', PagoController::class);
+    
+Route::get('pagos/create/{prestamo}', [PagoController::class, 'create'])->name('pagos.create');
+Route::post('pagos/{prestamo}', [PagoController::class, 'store'])->name('pagos.store');
+
+Route::resource('pagos', PagoController::class)->except(['create', 'store']);
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
