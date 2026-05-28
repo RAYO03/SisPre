@@ -14,7 +14,7 @@
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
-                    <select name="cliente_id"
+                    <select name="cliente_id" required
                             class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('cliente_id') border-red-400 @enderror">
                         <option value="">Seleccionar cliente...</option>
                         @foreach($clientes as $cliente)
@@ -29,7 +29,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Capital *</label>
-                    <input type="number" name="capital" id="capital" step="0.01" min="100"
+                    <input type="number" name="capital" id="capital" step="0.01" min="100" required
                            value="{{ old('capital') }}" oninput="simular()"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('capital') border-red-400 @enderror">
                     @error('capital')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -37,7 +37,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tasa Anual (%) *</label>
-                    <input type="number" name="tasa_anual" id="tasa_anual" step="0.01" min="0.01" max="100"
+                    <input type="number" name="tasa_anual" id="tasa_anual" step="0.01" min="0.01" max="100" required
                            value="{{ old('tasa_anual') }}" oninput="simular()"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('tasa_anual') border-red-400 @enderror">
                     @error('tasa_anual')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -45,7 +45,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Plazo (meses) *</label>
-                    <input type="number" name="plazo_meses" id="plazo_meses" min="1" max="360"
+                    <input type="number" name="plazo_meses" id="plazo_meses" min="1" max="360" required
                            value="{{ old('plazo_meses') }}" oninput="simular()"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('plazo_meses') border-red-400 @enderror">
                     @error('plazo_meses')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -53,7 +53,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio *</label>
-                    <input type="date" name="fecha_inicio"
+                    <input type="date" name="fecha_inicio" min="{{ now()->toDateString() }}" required
                            value="{{ old('fecha_inicio', now()->toDateString()) }}"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('fecha_inicio') border-red-400 @enderror">
                     @error('fecha_inicio')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -61,7 +61,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                    <select name="frecuencia" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                    <select name="frecuencia" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                         <option value="mensual">Mensual</option>
                     </select>
                 </div>
