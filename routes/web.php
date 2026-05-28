@@ -6,6 +6,7 @@ use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,6 +17,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    // CONFIGURACION
+    Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
+    Volt::route('/settings/password', 'settings.password')->name('settings.password');
+    Volt::route('/settings/appearance', 'settings.appearance')->name('settings.appearance');
 
     // PERFIL
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
