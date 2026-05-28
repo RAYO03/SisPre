@@ -47,7 +47,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Monto del Pago *</label>
-                        <input type="number" name="monto" step="0.01" min="0.01" max="{{ $saldoPendienteInput }}"
+                        <input type="number" name="monto" step="0.01" min="0.01" max="{{ $saldoPendienteInput }}" required
                             value="{{ old('monto', $saldoPendienteInput) }}"
                             class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('monto') border-red-400 @enderror">
 
@@ -60,7 +60,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha del Pago *</label>
-                        <input type="date" name="fecha_pago" value="{{ old('fecha_pago', now()->toDateString()) }}"
+                        <input type="date" name="fecha_pago" value="{{ old('fecha_pago', now()->toDateString()) }}" required
                             max="{{ now()->toDateString() }}"
 
                         
@@ -72,7 +72,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
-                        <textarea name="notas" rows="3"
+                        <textarea name="notas" rows="3" maxlength="500"
                             class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             placeholder="Ej: Pago en efectivo, transferencia #123...">{{ old('notas') }}</textarea>
                     </div>
