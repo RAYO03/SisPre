@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,9 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Prestamo extends Model
 {
     protected $fillable = [
-        'cliente_id', 'capital', 'tasa_anual', 'plazo_meses',
-        'frecuencia', 'fecha_inicio', 'fecha_vencimiento',
-        'monto_cuota', 'estado',
+        'user_id',
+        'cliente_id',
+        'capital',
+        'tasa_anual',
+        'plazo_meses',
+        'frecuencia',
+        'fecha_inicio',
+        'fecha_vencimiento',
+        'monto_cuota',
+        'estado',
     ];
 
     protected $casts = [
@@ -23,7 +31,7 @@ class Prestamo extends Model
 
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(User::class, 'cliente_id');
     }
 
     public function cuotas(): HasMany
@@ -43,5 +51,10 @@ class Prestamo extends Model
             ->orWhere('estado', 'parcialmente_pagada')
             ->where('fecha_vencimiento', '<', now())
             ->exists();
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

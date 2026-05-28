@@ -10,7 +10,7 @@ class PrestamoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cliente_id'   => 'required|exists:clientes,id',
+            'cliente_id' => 'nullable|exists:clientes,id',
             'capital'      => 'required|numeric|min:100',
             'tasa_anual'   => 'required|numeric|min:0.01|max:100',
             'plazo_meses'  => 'required|integer|min:1|max:360',
