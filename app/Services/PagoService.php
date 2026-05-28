@@ -129,8 +129,17 @@ class PagoService
      */
     public function marcarCuotasVencidas(): void
     {
+        $prestamoIds = Cuota::where('estado', 'pendiente')
+            ->where('fecha_vencimiento', '<', now())
+            ->pluck('prestamo_id')
+            ->unique();
+
         Cuota::where('estado', 'pendiente')
             ->where('fecha_vencimiento', '<', now())
             ->update(['estado' => 'vencida']);
+
+        Prestamo::whereIn('id', $prestamoIds)
+            ->where('estado', 'activo')
+            ->update(['estado' => 'en_mora']);
     }
 }
