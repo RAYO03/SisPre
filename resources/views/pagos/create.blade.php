@@ -37,7 +37,7 @@
 
                     @php
                         $cuotaActiva = $prestamo->cuotas
-                            ->whereIn('estado', ['pendiente', 'parcialmente_pagada'])
+                            ->whereIn('estado', ['pendiente', 'vencida', 'parcialmente_pagada'])
                             ->sortBy('numero')
                             ->first();
 
