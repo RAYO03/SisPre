@@ -14,52 +14,52 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                    <input type="text" name="nombre" value="{{ old('nombre') }}"
+                    <input type="text" name="nombre" value="{{ old('nombre') }}" required maxlength="100"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('nombre') border-red-400 @enderror">
                     @error('nombre')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Apellido *</label>
-                    <input type="text" name="apellido" value="{{ old('apellido') }}"
+                    <input type="text" name="apellido" value="{{ old('apellido') }}" required maxlength="100"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('apellido') border-red-400 @enderror">
                     @error('apellido')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <input type="email" name="email" value="{{ old('email') }}"
+                    <input type="email" name="email" value="{{ old('email') }}" required
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('email') border-red-400 @enderror">
                     @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                    <input type="text" name="telefono" value="{{ old('telefono') }}"
+                    <input type="text" name="telefono" value="{{ old('telefono') }}" maxlength="20"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                    <input type="text" name="direccion" value="{{ old('direccion') }}"
+                    <input type="text" name="direccion" value="{{ old('direccion') }}" maxlength="255"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ingresos Mensuales</label>
-                    <input type="number" name="ingresos_mensuales" step="0.01" value="{{ old('ingresos_mensuales') }}"
+                    <input type="number" name="ingresos_mensuales" step="0.01" min="0" value="{{ old('ingresos_mensuales') }}"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Referencia</label>
-                    <input type="text" name="referencia_nombre" value="{{ old('referencia_nombre') }}"
+                    <input type="text" name="referencia_nombre" value="{{ old('referencia_nombre') }}" maxlength="100"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Referencia</label>
-                    <input type="text" name="referencia_telefono" value="{{ old('referencia_telefono') }}"
+                    <input type="text" name="referencia_telefono" value="{{ old('referencia_telefono') }}" maxlength="20"
                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
 
