@@ -14,7 +14,7 @@ class PagoRequest extends FormRequest
 
         $cuotaActiva = $prestamo instanceof Prestamo
             ? $prestamo->cuotas()
-                ->whereIn('estado', ['pendiente', 'parcialmente_pagada'])
+                ->whereIn('estado', ['pendiente', 'vencida', 'parcialmente_pagada'])
                 ->orderBy('numero')
                 ->first()
             : null;
