@@ -127,6 +127,29 @@
 
                     </div>
 
+                    <!-- Phone -->
+                    <div>
+
+                        <label for="telefono"
+                               class="block text-sm text-gray-300 mb-2">
+                            Telefono
+                        </label>
+
+                        <input id="telefono"
+                               class="w-full rounded-xl bg-gray-800 border border-gray-700 text-white px-4 py-3 focus:border-purple-500 focus:ring-purple-500"
+                               type="tel"
+                               name="telefono"
+                               value="{{ old('telefono') }}"
+                               maxlength="10"
+                               pattern="[0-9]{10}"
+                               required
+                               autocomplete="tel"
+                               placeholder="Ej: 6623446506">
+
+                        <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
+
+                    </div>
+
                     <!-- Password -->
                     <div>
 
