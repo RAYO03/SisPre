@@ -1,76 +1,74 @@
 <x-app-layout>
+    <div class="p-8">
+        <h1 class="mb-6 text-3xl font-bold text-purple-700">
+            Mis Prestamos
+        </h1>
 
-<div class="p-8">
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-purple-600 text-white">
+                    <tr>
+                        <th class="p-4 text-left">Folio</th>
+                        <th class="p-4 text-left">Monto</th>
+                        <th class="p-4 text-left">Saldo</th>
+                        <th class="p-4 text-left">Plazo</th>
+                        <th class="p-4 text-left">Estado</th>
+                        <th class="p-4 text-left">Acciones</th>
+                    </tr>
+                </thead>
 
-    <h1 class="text-3xl font-bold text-purple-700 mb-6">
-        Mis Préstamos
-    </h1>
+                <tbody>
+                    @forelse($prestamos ?? [] as $prestamo)
+                        <tr class="border-b">
+                            <td class="p-4">{{ $prestamo->folio }}</td>
 
-    <div class="bg-white rounded-xl shadow overflow-hidden">
+                            <td class="p-4">
+                                ${{ number_format($prestamo->monto_total, 2) }}
+                            </td>
 
-        <table class="w-full">
+                            <td class="p-4 font-semibold text-green-700">
+                                ${{ number_format($prestamo->saldo_pendiente, 2) }}
+                            </td>
 
-            <thead class="bg-purple-600 text-white">
+                            <td class="p-4">
+                                {{ $prestamo->plazo_meses }} meses
+                            </td>
 
-                <tr>
-                    <th class="p-4 text-left">Folio</th>
-                    <th class="p-4 text-left">Monto</th>
-                    <th class="p-4 text-left">Plazo</th>
-                    <th class="p-4 text-left">Estado</th>
-                    <th class="p-4 text-left">Acción</th>
-                </tr>
+                            <td class="p-4">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                    @if($prestamo->estado === 'activo') bg-green-100 text-green-700
+                                    @elseif($prestamo->estado === 'pagado') bg-blue-100 text-blue-700
+                                    @elseif($prestamo->estado === 'vencido') bg-red-100 text-red-700
+                                    @else bg-gray-100 text-gray-700 @endif">
+                                    {{ ucfirst($prestamo->estado) }}
+                                </span>
+                            </td>
 
-            </thead>
+                            <td class="p-4">
+                                <div class="flex gap-2">
+                                    <a href="{{ route('cliente.estado-cuenta', $prestamo->id) }}"
+                                       class="rounded bg-purple-700 px-4 py-2 text-white hover:bg-purple-800">
+                                        Ver
+                                    </a>
 
-            <tbody>
-
-                @forelse($prestamos ?? [] as $prestamo)
-
-                <tr class="border-b">
-
-                    <td class="p-4">
-                        CRD-{{ $prestamo->id }}
-                    </td>
-
-                    <td class="p-4">
-                        ${{ number_format($prestamo->capital,2) }}
-                    </td>
-
-                    <td class="p-4">
-                        {{ $prestamo->plazo_meses }} meses
-                    </td>
-
-                    <td class="p-4">
-                        {{ ucfirst($prestamo->estado) }}
-                    </td>
-
-                    <td class="p-4">
-
-                        <a href="{{ route('cliente.estado-cuenta',$prestamo->id) }}"
-                           class="bg-purple-600 text-white px-4 py-2 rounded">
-                            Ver
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                @empty
-
-                <tr>
-                    <td colspan="5" class="p-6 text-center">
-                        No tienes préstamos registrados
-                    </td>
-                </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
+                                    @if($prestamo->estado === 'activo')
+                                        <a href="{{ route('cliente.pagos.create', $prestamo->id) }}"
+                                           class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                                            Pagar
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-6 text-center">
+                                No tienes prestamos registrados
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-
-</div>
-
 </x-app-layout>
