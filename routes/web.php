@@ -2,12 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-
 //Controllers Cliente
 use App\Http\Controllers\Cliente\DashboardClienteController;
 use App\Http\Controllers\Cliente\SolicitudPrestamoController;
 use App\Http\Controllers\Cliente\PrestamoController;
 use App\Http\Controllers\Cliente\PagoController;
+use App\Http\Controllers\Cliente\PerfilController;
 
 //Controllers Admin
 use App\Http\Controllers\Admin\DashboardAdminController;
@@ -58,9 +58,14 @@ Route::middleware(['auth'])->prefix('cliente')->name('cliente.')->group(function
     Route::post('/pagos/store/{prestamo_id}', [PagoController::class, 'store'])
         ->name('pagos.store');
     
-    Route::get('/perfil', function () {
-        return view('cliente.perfil');
-    })->name('perfil');
+    Route::get('/perfil', [PerfilController::class, 'show'])
+        ->name('perfil');
+
+    Route::get('/perfil/editar', [PerfilController::class, 'edit'])
+        ->name('perfil.edit');
+
+    Route::patch('/perfil', [PerfilController::class, 'update'])
+        ->name('perfil.update');
 
 });
 
