@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prestamos', function (Blueprint $table) {
+        Schema::create('administradores', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('user_id')
-                ->after('id')
                 ->constrained()
                 ->onDelete('cascade');
+            $table->string('puesto')->nullable();
+            $table->string('telefono')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -24,9 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prestamos', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
-        });
+        Schema::dropIfExists('administradores');
     }
 };

@@ -1,32 +1,32 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pago extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'prestamo_id', 'fecha_pago', 'monto',
-        'interes_moratorio_pagado', 'interes_ordinario_pagado',
-        'capital_pagado', 'notas',
+        'prestamo_id',
+        'user_id',
+        'folio_pago',
+        'monto',
+        'metodo_pago',
+        'fecha_pago',
+        'comprobante',
+        'estado'
     ];
 
-    protected $casts = [
-        'fecha_pago' => 'date',
-        'monto' => 'decimal:2',
-    ];
-
-    public function prestamo(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(Prestamo::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function cuotas(): BelongsToMany
+    public function prestamo()
     {
-        return $this->belongsToMany(Cuota::class, 'pago_cuota')
-                    ->withPivot('monto_aplicado')
-                    ->withTimestamps();
+        return $this->belongsTo(Prestamo::class);
     }
 }

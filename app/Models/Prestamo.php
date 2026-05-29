@@ -3,58 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Prestamo extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
-        'cliente_id',
-        'capital',
-        'tasa_anual',
+        'solicitud_prestamo_id',
+        'folio',
+        'monto_total',
+        'saldo_pendiente',
         'plazo_meses',
-        'frecuencia',
+        'tasa_interes',
+        'pago_mensual',
         'fecha_inicio',
-        'fecha_vencimiento',
-        'monto_cuota',
-        'estado',
+        'fecha_final',
+        'estado'
     ];
 
-    protected $casts = [
-        'fecha_inicio' => 'date',
-        'fecha_vencimiento' => 'date',
-        'capital' => 'decimal:2',
-        'tasa_anual' => 'decimal:4',
-        'monto_cuota' => 'decimal:2',
-    ];
-
-    public function cliente(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'cliente_id');
-    }
-
-    public function cuotas(): HasMany
-    {
-        return $this->hasMany(Cuota::class)->orderBy('numero');
-    }
-
-    public function pagos(): HasMany
-    {
-        return $this->hasMany(Pago::class);
-    }
-
-    public function estaEnMora(): bool
-    {
-        return $this->cuotas()
-            ->where('estado', 'vencida')
-            ->orWhere('estado', 'parcialmente_pagada')
-            ->where('fecha_vencimiento', '<', now())
-            ->exists();
-    }
-
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function solicitud()
+    {
+        return $this->belongsTo(
+            SolicitudPrestamo::class,
+            'solicitud_prestamo_id'
+        );
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class);
     }
 }
