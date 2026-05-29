@@ -1,52 +1,45 @@
 <x-app-layout>
 
-<div class="p-8">
+    <div class="p-8">
 
-<h1 class="text-3xl font-bold text-purple-700 mb-6">
-Registrar Pago
-</h1>
+        <h1 class="text-3xl font-bold text-purple-700 mb-6">
+            Registrar Pago
+        </h1>
 
-<form method="POST"
-action="{{ route('admin.pagos.store') }}"
-class="bg-white rounded-2xl shadow p-8">
+        <form method="POST" action="{{ route('admin.pagos.store') }}" class="bg-white rounded-2xl shadow p-8">
 
-@csrf
+            @csrf
 
-<div class="mb-4">
+            <div class="mb-4">
 
-<label>Préstamo</label>
+                <label>Préstamo</label>
 
-<select name="prestamo_id"
-class="w-full rounded-lg">
+                <select name="prestamo_id" class="w-full rounded-lg">
 
-@foreach($prestamos ?? [] as $prestamo)
+                    @foreach ($prestamos ?? [] as $prestamo)
+                        <option value="{{ $prestamo->id }}">
+                            {{ $prestamo->id }}
+                        </option>
+                    @endforeach
 
-<option value="{{ $prestamo->id }}">
-{{ $prestamo->id }}
-</option>
+                </select>
 
-@endforeach
+            </div>
 
-</select>
+            <div class="mb-4">
 
-</div>
+                <label>Monto</label>
 
-<div class="mb-4">
+                <input type="number" name="monto" class="w-full rounded-lg">
 
-<label>Monto</label>
+            </div>
 
-<input type="number"
-name="monto"
-class="w-full rounded-lg">
+            <button class="bg-purple-700 text-white px-6 py-3 rounded-xl">
+                Guardar Pago
+            </button>
 
-</div>
+        </form>
 
-<button class="bg-purple-700 text-white px-6 py-3 rounded-xl">
-Guardar Pago
-</button>
-
-</form>
-
-</div>
+    </div>
 
 </x-app-layout>
