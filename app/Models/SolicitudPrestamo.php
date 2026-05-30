@@ -5,21 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Prestamo extends Model
+class SolicitudPrestamo extends Model
 {
     use HasFactory;
 
+    protected $table = 'solicitudes_prestamos';
+
     protected $fillable = [
         'user_id',
-        'solicitud_prestamo_id',
         'folio',
-        'monto_total',
-        'saldo_pendiente',
+        'monto_solicitado',
         'plazo_meses',
         'tasa_interes',
         'pago_mensual',
-        'fecha_inicio',
-        'fecha_final',
+        'total_pagar',
+        'motivo',
+        'ingreso_mensual',
+        'tipo_empleo',
+        'antiguedad_laboral',
         'estado'
     ];
 
@@ -28,16 +31,8 @@ class Prestamo extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function solicitud()
+    public function prestamo()
     {
-        return $this->belongsTo(
-            SolicitudPrestamo::class,
-            'solicitud_prestamo_id'
-        );
-    }
-
-    public function pagos()
-    {
-        return $this->hasMany(Pago::class);
+        return $this->hasOne(Prestamo::class);
     }
 }

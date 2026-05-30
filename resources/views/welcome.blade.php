@@ -42,10 +42,23 @@
             <nav class="flex items-center gap-4">
 
                 @auth
-                    <a href="{{ url('/dashboard') }}"
-                       class="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-lg font-semibold transition">
-                        Dashboard
-                    </a>
+                
+                    @if(auth()->user()->tipo_usuario === 'admin')
+
+                        <a href="{{ route('admin.dashboard') }}"
+                        class="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-lg font-semibold transition">
+                            Dashboard
+                        </a>
+
+                    @else
+
+                        <a href="{{ route('cliente.dashboard') }}"
+                        class="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-lg font-semibold transition">
+                            Dashboard
+                        </a>
+
+                    @endif
+
                 @else
 
                     <a href="{{ route('login') }}"

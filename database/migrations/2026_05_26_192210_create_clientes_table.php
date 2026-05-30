@@ -6,15 +6,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('clientes', function (Blueprint $table) {
+
             $table->id();
-            $table->string('nombre');
-            $table->string('apellido');
-            $table->string('email')->unique();
-            $table->string('telefono')->nullable();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            $table->string('telefono');
+            $table->date('fecha_nacimiento')->nullable();
             $table->string('direccion')->nullable();
-            $table->decimal('ingresos_mensuales', 12, 2)->nullable();
-            $table->string('referencia_nombre')->nullable();
-            $table->string('referencia_telefono')->nullable();
+            $table->string('ciudad')->nullable();
+            $table->string('estado')->nullable();
+
             $table->timestamps();
         });
     }

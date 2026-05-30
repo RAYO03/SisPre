@@ -7,13 +7,22 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('prestamo_id')->constrained('prestamos')->onDelete('cascade');
+            $table->foreignId('prestamo_id')
+                ->constrained()
+                ->onDelete('cascade');
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onDelete('cascade');
+            $table->string('folio_pago')->unique();
+            $table->decimal('monto', 10, 2);
+            $table->string('metodo_pago');
             $table->date('fecha_pago');
-            $table->decimal('monto', 12, 2);
-            $table->decimal('interes_moratorio_pagado', 12, 2)->default(0);
-            $table->decimal('interes_ordinario_pagado', 12, 2)->default(0);
-            $table->decimal('capital_pagado', 12, 2)->default(0);
-            $table->string('notas')->nullable();
+            $table->string('comprobante')->nullable();
+            $table->enum('estado', [
+                'pendiente',
+                'pagado',
+                'rechazado'
+            ])->default('pagado');
             $table->timestamps();
         });
     }

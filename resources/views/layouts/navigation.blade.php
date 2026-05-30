@@ -1,130 +1,98 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+<nav class="fixed left-0 top-0 h-screen w-56 bg-gradient-to-b from-slate-950 via-indigo-950 to-purple-950 text-white shadow-2xl z-50">
 
-                        <img src="{{ asset('images/credify-logo2.png') }}"
-                            alt="Credify Logo"
-                            class="h-10 w-auto">
+    <div class="p-4 border-b border-white/10">
+        <a href="{{ auth()->user()->tipo_usuario === 'admin' ? route('admin.dashboard') : route('cliente.dashboard') }}"
+           class="flex items-center gap-3">
 
-                        <span class="text-2xl font-bold text-purple-700">
-                            Credify
-                        </span>
-
-                    </a>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
-                        Clientes
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('prestamos.index')" :active="request()->routeIs('prestamos.*')">
-                        Préstamos
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('pagos.index')" :active="request()->routeIs('pagos.*')">
-                        Pagos
-                    </x-nav-link>
-                </div>
+            <div class="w-11 h-11 flex items-center justify-center">
+                <img
+                    src="{{ asset('images/credify-logo3.png') }}"
+                    alt="Credify"
+                    class="w-full h-full object-contain"
+                />
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Credify</h1>
+                <p class="text-xs text-purple-200 leading-tight">
+                    {{ auth()->user()->tipo_usuario === 'admin' ? 'Administrador' : 'Cliente' }}
+                </p>
             </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        </a>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+    <div class="p-3 space-y-1 pb-36">
+        @if(auth()->user()->tipo_usuario === 'admin')
 
-            <x-responsive-nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
+            <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Dashboard
+            </a>
+
+            <a href="{{ route('admin.solicitudes') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Solicitudes
+            </a>
+
+            <a href="{{ route('admin.clientes') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
                 Clientes
-            </x-responsive-nav-link>
+            </a>
 
-            <x-responsive-nav-link :href="route('prestamos.index')" :active="request()->routeIs('prestamos.*')">
+            <a href="{{ route('admin.prestamos') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
                 Préstamos
-            </x-responsive-nav-link>
+            </a>
 
-            <x-responsive-nav-link :href="route('pagos.index')" :active="request()->routeIs('pagos.*')">
+            <a href="{{ route('admin.pagos') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
                 Pagos
-            </x-responsive-nav-link>
-        </div>
+            </a>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+            <a href="{{ route('admin.reportes') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Reportes
+            </a>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
+        @else
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
+            <a href="{{ route('cliente.dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Inicio
+            </a>
 
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
+            <a href="{{ route('cliente.simulador') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Simulador
+            </a>
+
+            <a href="{{ route('cliente.solicitud') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Solicitar préstamo
+            </a>
+
+            <a href="{{ route('cliente.solicitudes') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Mis solicitudes
+            </a>
+
+            <a href="{{ route('cliente.prestamos') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Mis préstamos
+            </a>
+
+            <a href="{{ route('cliente.pagos') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Pagos
+            </a>
+
+            <a href="{{ route('cliente.perfil') }}" class="block px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm">
+                Perfil
+            </a>
+
+        @endif
     </div>
+
+    <div class="absolute bottom-0 left-0 w-full p-3 border-t border-white/10 bg-indigo-950">
+        <p class="text-xs text-purple-100 mb-2 truncate">
+            {{ Auth::user()->name }}
+        </p>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+
+            <button class="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-md font-medium transition text-xs">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
+
 </nav>
