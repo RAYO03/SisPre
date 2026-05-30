@@ -28,12 +28,17 @@ class SolicitudAdminController extends Controller
             $solicitud->update([
                 'estado' => 'aprobada'
             ]);
+            $ultimoPrestamo = Prestamo::latest('id')->first();
+
+            $numero = $ultimoPrestamo
+        ? intval(substr($ultimoPrestamo->folio, -6)) + 1
+        : 1;
 
             Prestamo::firstOrCreate([
                 'solicitud_prestamo_id' => $solicitud->id,
             ], [
                 'user_id' => $solicitud->user_id,
-                'folio' => 'PR-' . date('Y') . '-' . str_pad(Prestamo::count() + 1, 6, '0', STR_PAD_LEFT),
+                'folio' => 'PR-' . now()->year . '-' . str_pad($numero, 6, '0', STR_PAD_LEFT),
                 'monto_total' => $solicitud->total_pagar,
                 'saldo_pendiente' => $solicitud->total_pagar,
                 'plazo_meses' => $solicitud->plazo_meses,
