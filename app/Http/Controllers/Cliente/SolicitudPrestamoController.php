@@ -46,7 +46,7 @@ class SolicitudPrestamoController extends Controller
 
         $solicitud = SolicitudPrestamo::create([
             'user_id' => Auth::id(),
-            'folio' => 'CR-' . date('Y') . '-' . str_pad(SolicitudPrestamo::count() + 1, 6, '0', STR_PAD_LEFT),
+            'folio' => 'SOL-' . date('Y') . '-' . str_pad(SolicitudPrestamo::count() + 1, 6, '0', STR_PAD_LEFT),
             'monto_solicitado' => $request->monto_solicitado,
             'plazo_meses' => $request->plazo_meses,
             'tasa_interes' => $tasa,

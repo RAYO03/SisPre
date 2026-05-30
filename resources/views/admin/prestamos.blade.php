@@ -1,68 +1,68 @@
 <x-app-layout>
+    <div class="p-8">
+        <h1 class="text-3xl font-bold text-purple-700 mb-6">
+            Prestamos activos
+        </h1>
 
-<div class="p-8">
+        <div class="bg-white rounded-2xl shadow overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-purple-700 text-white">
+                    <tr>
+                        <th class="p-4 text-left">Cliente</th>
+                        <th class="p-4 text-right">Monto total</th>
+                        <th class="p-4 text-right">Saldo</th>
+                        <th class="p-4 text-right">Pago mensual</th>
+                        <th class="p-4 text-center">Plazo</th>
+                        <th class="p-4 text-center">Estado</th>
+                        <th class="p-4 text-center">Accion</th>
+                    </tr>
+                </thead>
 
-<h1 class="text-3xl font-bold text-purple-700 mb-6">
-Préstamos
-</h1>
+                <tbody>
+                    @forelse($prestamos ?? [] as $prestamo)
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4 font-medium text-gray-800">
+                                {{ $prestamo->user->name ?? 'N/A' }}
+                            </td>
 
-<div class="bg-white rounded-2xl shadow overflow-hidden">
+                            <td class="p-4 text-right">
+                                ${{ number_format($prestamo->monto_total, 2) }}
+                            </td>
 
-<table class="w-full">
+                            <td class="p-4 text-right font-semibold text-green-700">
+                                ${{ number_format($prestamo->saldo_pendiente, 2) }}
+                            </td>
 
-<thead class="bg-purple-700 text-white">
+                            <td class="p-4 text-right">
+                                ${{ number_format($prestamo->pago_mensual, 2) }}
+                            </td>
 
-<tr>
-<th class="p-4">Cliente</th>
-<th class="p-4">Monto</th>
-<th class="p-4">Plazo</th>
-<th class="p-4">Estado</th>
-<th class="p-4">Acción</th>
-</tr>
+                            <td class="p-4 text-center">
+                                {{ $prestamo->plazo_meses }} meses
+                            </td>
 
-</thead>
+                            <td class="p-4 text-center">
+                                <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                                    {{ ucfirst($prestamo->estado) }}
+                                </span>
+                            </td>
 
-<tbody>
-
-@foreach($prestamos ?? [] as $prestamo)
-
-<tr class="border-b">
-
-<td class="p-4">
-{{ $prestamo->user->name ?? 'N/A' }}
-</td>
-
-<td class="p-4">
-${{ number_format($prestamo->capital,2) }}
-</td>
-
-<td class="p-4">
-{{ $prestamo->plazo_meses }} meses
-</td>
-
-<td class="p-4">
-{{ ucfirst($prestamo->estado) }}
-</td>
-
-<td class="p-4">
-
-<a href="{{ route('admin.prestamos.show',$prestamo->id) }}"
-class="bg-purple-700 text-white px-4 py-2 rounded">
-Ver
-</a>
-
-</td>
-
-</tr>
-
-@endforeach
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
+                            <td class="p-4 text-center">
+                                <a href="{{ route('admin.prestamos.show', $prestamo->id) }}"
+                                   class="rounded bg-purple-700 px-4 py-2 text-white hover:bg-purple-800">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="p-6 text-center text-gray-500">
+                                No hay prestamos activos.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </x-app-layout>

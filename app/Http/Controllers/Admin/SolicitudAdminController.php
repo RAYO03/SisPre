@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SolicitudPrestamo;
 use App\Models\Prestamo;
+use Illuminate\Support\Facades\DB;
 
 class SolicitudAdminController extends Controller
 {
@@ -17,36 +18,61 @@ class SolicitudAdminController extends Controller
 
     public function aprobar($id)
     {
-        $solicitud = SolicitudPrestamo::with('user')->findOrFail($id);
+        $procesada = DB::transaction(function () use ($id) {
+            $solicitud = SolicitudPrestamo::with('user')->lockForUpdate()->findOrFail($id);
 
-        $solicitud->update([
-            'estado' => 'aprobada'
-        ]);
+            if ($solicitud->estado !== 'pendiente') {
+                return false;
+            }
 
-        Prestamo::create([
-            'user_id' => $solicitud->user_id,
-            'solicitud_prestamo_id' => $solicitud->id,
-            'folio' => 'PR-' . date('Y') . '-' . str_pad(Prestamo::count() + 1, 6, '0', STR_PAD_LEFT),
-            'monto_total' => $solicitud->total_pagar,
-            'saldo_pendiente' => $solicitud->total_pagar,
-            'plazo_meses' => $solicitud->plazo_meses,
-            'tasa_interes' => $solicitud->tasa_interes,
-            'pago_mensual' => $solicitud->pago_mensual,
-            'fecha_inicio' => now(),
-            'fecha_final' => now()->addMonths($solicitud->plazo_meses),
-            'estado' => 'activo',
-        ]);
+            $solicitud->update([
+                'estado' => 'aprobada'
+            ]);
+
+            Prestamo::firstOrCreate([
+                'solicitud_prestamo_id' => $solicitud->id,
+            ], [
+                'user_id' => $solicitud->user_id,
+                'folio' => 'PR-' . date('Y') . '-' . str_pad(Prestamo::count() + 1, 6, '0', STR_PAD_LEFT),
+                'monto_total' => $solicitud->total_pagar,
+                'saldo_pendiente' => $solicitud->total_pagar,
+                'plazo_meses' => $solicitud->plazo_meses,
+                'tasa_interes' => $solicitud->tasa_interes,
+                'pago_mensual' => $solicitud->pago_mensual,
+                'fecha_inicio' => now(),
+                'fecha_final' => now()->addMonths($solicitud->plazo_meses),
+                'estado' => 'activo',
+            ]);
+
+            return true;
+        });
+
+        if (! $procesada) {
+            return back()->with('error', 'Esta solicitud ya fue procesada.');
+        }
 
         return back()->with('success', 'Solicitud aprobada y préstamo creado.');
     }
 
     public function rechazar($id)
     {
-        $solicitud = SolicitudPrestamo::findOrFail($id);
+        $procesada = DB::transaction(function () use ($id) {
+            $solicitud = SolicitudPrestamo::lockForUpdate()->findOrFail($id);
 
-        $solicitud->update([
-            'estado' => 'rechazada'
-        ]);
+            if ($solicitud->estado !== 'pendiente') {
+                return false;
+            }
+
+            $solicitud->update([
+                'estado' => 'rechazada'
+            ]);
+
+            return true;
+        });
+
+        if (! $procesada) {
+            return back()->with('error', 'Esta solicitud ya fue procesada.');
+        }
 
         return back()->with('success', 'Solicitud rechazada correctamente.');
     }
