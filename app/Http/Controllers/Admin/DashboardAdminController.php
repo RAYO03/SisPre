@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use App\Models\Prestamo;
 use App\Models\SolicitudPrestamo;
 use App\Models\Pago;
+use App\Support\Estado;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -21,13 +22,13 @@ class DashboardAdminController extends Controller
         $fechaInicio = $inicio->format('Y-m-d');
         $fechaFin = $fin->format('Y-m-d');
 
-        $totalClientes = Cliente::count();
+        $totalClientes = Cliente::whereBetween('created_at', [$inicio, $fin])->count();
 
-        $solicitudesPendientes = SolicitudPrestamo::where('estado', 'pendiente')
+        $solicitudesPendientes = SolicitudPrestamo::where('estado', Estado::SOLICITADO)
             ->whereBetween('created_at', [$inicio, $fin])
             ->count();
 
-        $prestamosActivos = Prestamo::where('estado', 'activo')
+        $prestamosActivos = Prestamo::where('estado', Estado::ACTIVO)
             ->whereBetween('created_at', [$inicio, $fin])
             ->count();
 
@@ -41,18 +42,21 @@ class DashboardAdminController extends Controller
             ->pluck('total', 'semana');
 
         $prestamosPorEstado = collect([
-            'activo' => Prestamo::where('estado', 'activo')
+            Estado::ACTIVO => Prestamo::where('estado', Estado::ACTIVO)
                 ->whereBetween('created_at', [$inicio, $fin])
                 ->count(),
 
-            'pagado' => Prestamo::where('estado', 'pagado')
+            Estado::LIQUIDADO => Prestamo::where('estado', Estado::LIQUIDADO)
                 ->whereBetween('created_at', [$inicio, $fin])
                 ->count(),
 
-            'vencido' => Prestamo::where('estado', 'vencido')
+            Estado::EN_MORA => Prestamo::where('estado', Estado::EN_MORA)
                 ->whereBetween('created_at', [$inicio, $fin])
                 ->count(),
         ]);
+        $prestamosPorEstadoLabels = $prestamosPorEstado
+            ->keys()
+            ->map(fn ($estado) => Estado::label($estado));
 
         return view('admin.dashboard', compact(
             'totalClientes',
@@ -62,7 +66,8 @@ class DashboardAdminController extends Controller
             'fechaInicio',
             'fechaFin',
             'prestamosSemana',
-            'prestamosPorEstado'
+            'prestamosPorEstado',
+            'prestamosPorEstadoLabels'
         ));
     }
 }
