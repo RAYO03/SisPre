@@ -61,13 +61,15 @@ class Cuota extends Model
         return max(0, (int) floor($fechaVencimiento->diffInDays($hoy, false)));
     }
 
-    public function calcularInteresMoratorio(float $tasaDiaria = 0.001): float
+    public function calcularInteresMoratorio(float $tasaDiaria = 0.001, ?Carbon $fechaReferencia = null): float
     {
         if ($this->estado === Estado::PAGADA) {
             return 0;
         }
 
-        $diasAtraso = $this->dias_atraso;
+        $fechaVencimiento = Carbon::parse($this->fecha_vencimiento)->startOfDay();
+        $fechaCalculo = ($fechaReferencia ?? now())->copy()->startOfDay();
+        $diasAtraso = max(0, (int) floor($fechaVencimiento->diffInDays($fechaCalculo, false)));
 
         if ($diasAtraso <= 0) {
             return 0;
