@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Prestamo;
 use App\Models\Pago;
 use App\Models\Cuota;
+use App\Support\Estado;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -25,16 +26,16 @@ class PagoService
             $totalCapital    = 0;
             $cuotasAfectadas = [];
 
-            // Obtener cuotas pendientes ordenadas por número
+            // Obtener cuotas solicitadas ordenadas por número
             $cuotas = $prestamo->cuotas()
-                ->whereIn('estado', ['pendiente', 'vencida', 'parcialmente_pagada'])
+                ->whereIn('estado', [Estado::PENDIENTE, Estado::VENCIDA, Estado::PARCIALMENTE_PAGADA])
                 ->orderBy('numero')
                 ->get();
 
             foreach ($cuotas as $cuota) {
                 if ($saldoDisponible <= 0) break;
 
-                // 1. Interés moratorio si la cuota está vencida
+                // 1. Interés moratorio si la cuota está en mora
                 $moratorio = $cuota->calcularInteresmoratorio();
                 if ($moratorio > 0 && $saldoDisponible > 0) {
                     $pagarMoratorio = min($moratorio, $saldoDisponible);
@@ -62,9 +63,9 @@ class PagoService
 
                     // Determinar nuevo estado de la cuota
                     if ($cuota->monto_pagado >= $cuota->cuota_total) {
-                        $cuota->estado = 'pagada';
+                        $cuota->estado = Estado::PAGADA;
                     } else {
-                        $cuota->estado = 'parcialmente_pagada';
+                        $cuota->estado = Estado::PARCIALMENTE_PAGADA;
                     }
 
                     $cuota->save();
@@ -104,33 +105,50 @@ class PagoService
     {
         $prestamo->refresh();
         $cuotas = $prestamo->cuotas;
+        $saldoPendiente = round($cuotas->sum(fn ($cuota) => $cuota->saldo_pendiente), 2);
 
-        $todasPagadas = $cuotas->every(fn($c) => $c->estado === 'pagada');
+        $todasPagadas = $cuotas->isNotEmpty()
+            && $cuotas->every(fn($c) => $c->estado === Estado::PAGADA);
 
         if ($todasPagadas) {
-            $prestamo->update(['estado' => 'liquidado']);
+            $prestamo->update([
+                'saldo_pendiente' => 0,
+                'estado' => Estado::LIQUIDADO,
+            ]);
             return;
         }
 
         $tieneVencidas = $cuotas->contains(function ($c) {
-            return in_array($c->estado, ['vencida', 'parcialmente_pagada'])
+            return in_array($c->estado, [Estado::VENCIDA, Estado::PARCIALMENTE_PAGADA])
                 && $c->fecha_vencimiento->isPast();
         });
 
-        if ($tieneVencidas && $prestamo->estado === 'activo') {
-            $prestamo->update(['estado' => 'en_mora']);
-        } elseif (!$tieneVencidas && $prestamo->estado === 'en_mora') {
-            $prestamo->update(['estado' => 'activo']);
-        }
+        $prestamo->update([
+            'saldo_pendiente' => $saldoPendiente,
+            'estado' => $tieneVencidas ? Estado::EN_MORA : Estado::ACTIVO,
+        ]);
     }
 
     /**
-     * Marca cuotas vencidas sin pagar (ejecutar con scheduler).
+     * Marca cuotas en mora sin liquidar (ejecutar con scheduler).
      */
     public function marcarCuotasVencidas(): void
     {
-        Cuota::where('estado', 'pendiente')
+        Cuota::whereIn('estado', [Estado::PENDIENTE, Estado::PARCIALMENTE_PAGADA])
             ->where('fecha_vencimiento', '<', now())
-            ->update(['estado' => 'vencida']);
+            ->update(['estado' => Estado::VENCIDA]);
+
+        Prestamo::where('estado', Estado::ACTIVO)
+            ->whereHas('cuotas', function ($query) {
+                $query->where('estado', Estado::VENCIDA);
+            })
+            ->update(['estado' => Estado::EN_MORA]);
+
+        Prestamo::where('estado', Estado::EN_MORA)
+            ->whereDoesntHave('cuotas', function ($query) {
+                $query->where('estado', Estado::VENCIDA);
+            })
+            ->whereHas('cuotas')
+            ->update(['estado' => Estado::ACTIVO]);
     }
 }
