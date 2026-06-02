@@ -9,7 +9,9 @@ use App\Models\Prestamo;
 use App\Services\AmortizacionService;
 use App\Services\PagoService;
 use App\Support\Estado;
+use App\Support\PrestamoConfig;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 
 class PagoAdminController extends Controller
@@ -41,6 +43,7 @@ class PagoAdminController extends Controller
         $moraPendiente = 0;
         $cuotasResumen = collect();
         $fechaPagoSeleccionada = $request->query('fecha_pago', now()->toDateString());
+        $metodosPago = PrestamoConfig::metodosPago();
 
         if ($prestamos->isNotEmpty()) {
             $prestamoSeleccionado = Prestamo::with(['user', 'cuotas'])
@@ -74,7 +77,8 @@ class PagoAdminController extends Controller
             'montoMaximo',
             'moraPendiente',
             'cuotasResumen',
-            'fechaPagoSeleccionada'
+            'fechaPagoSeleccionada',
+            'metodosPago'
         ));
     }
 
@@ -83,7 +87,7 @@ class PagoAdminController extends Controller
         $validated = $request->validate([
             'prestamo_id' => 'required|exists:prestamos,id',
             'monto' => 'required|numeric|min:0.01',
-            'metodo_pago' => 'required|in:Transferencia,Deposito,Efectivo,Tarjeta',
+            'metodo_pago' => ['required', Rule::in(PrestamoConfig::metodosPago())],
             'fecha_pago' => 'required|date|before_or_equal:today',
             'comprobante' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
