@@ -1,87 +1,98 @@
-<div class="bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Nuevo Préstamo</h2>
-
-    <form method="POST" action="{{ route('prestamos.store') }}">
-        @csrf
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div class="space-y-6">
+    <div class="rounded-2xl bg-white p-6 shadow">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
             <div>
-                <label class="block font-semibold mb-1">Cliente</label>
-                <select name="cliente_id" wire:model.live="cliente_id" class="w-full border p-2 rounded">
-                    <option value="">Selecciona un cliente</option>
-                    @foreach($clientes as $cliente)
-                        <option value="{{ $cliente->id }}">
-                            {{ $cliente->nombre }} {{ $cliente->apellido }}
-                        </option>
+                <label class="mb-2 block text-sm font-semibold text-gray-700">Monto solicitado</label>
+                <input type="number"
+                       min="1000"
+                       step="0.01"
+                       wire:model.live="capital"
+                       class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-gray-700">Plazo</label>
+                <select wire:model.live="plazo_meses"
+                        class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                    @foreach($plazos as $plazo)
+                        <option value="{{ $plazo }}">{{ $plazo }} meses</option>
                     @endforeach
                 </select>
             </div>
 
             <div>
-                <label class="block font-semibold mb-1">Capital</label>
-                <input type="number" step="0.01" name="capital" wire:model.live="capital"
-                    class="w-full border p-2 rounded">
+                <label class="mb-2 block text-sm font-semibold text-gray-700">Fecha estimada de inicio</label>
+                <input type="date"
+                       wire:model.live="fecha_inicio"
+                       class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
             </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Tasa anual %</label>
-                <input type="number" step="0.01" name="tasa_anual" wire:model.live="tasa_anual"
-                    class="w-full border p-2 rounded">
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Plazo en meses</label>
-                <input type="number" name="plazo_meses" wire:model.live="plazo_meses"
-                    class="w-full border p-2 rounded">
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Fecha de inicio</label>
-                <input type="date" name="fecha_inicio" wire:model.live="fecha_inicio"
-                    class="w-full border p-2 rounded">
-            </div>
-
-            <input type="hidden" name="frecuencia" value="mensual">
         </div>
 
-        <div class="bg-indigo-100 text-indigo-800 p-4 rounded mb-6">
-            <p class="text-sm">Cuota mensual aproximada</p>
-            <p class="text-3xl font-bold">${{ number_format($cuotaMensual, 2) }}</p>
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div class="rounded-xl bg-purple-50 p-5">
+                <p class="text-sm text-gray-500">Pago mensual estimado</p>
+                <p class="mt-1 text-3xl font-bold text-purple-700">${{ number_format($resumen['pago_mensual'], 2) }}</p>
+            </div>
+
+            <div class="rounded-xl bg-blue-50 p-5">
+                <p class="text-sm text-gray-500">Tasa anual aplicada</p>
+                <p class="mt-1 text-3xl font-bold text-blue-700">{{ number_format($resumen['tasa_anual'], 2) }}%</p>
+            </div>
+
+            <div class="rounded-xl bg-emerald-50 p-5">
+                <p class="text-sm text-gray-500">Total estimado a pagar</p>
+                <p class="mt-1 text-3xl font-bold text-emerald-700">${{ number_format($resumen['total_pagar'], 2) }}</p>
+            </div>
         </div>
 
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded">
-            Guardar Préstamo
-        </button>
+        <div class="mt-6 flex justify-end">
+            <a href="{{ route('cliente.solicitud', [
+                    'monto_solicitado' => $capital,
+                    'plazo_meses' => $plazo_meses,
+                ]) }}"
+               class="rounded-xl bg-purple-700 px-6 py-3 font-semibold text-white hover:bg-purple-800">
+                Continuar solicitud
+            </a>
+        </div>
+    </div>
 
-        <a href="{{ route('prestamos.index') }}" class="ml-2 text-gray-600">
-            Cancelar
-        </a>
-    </form>
+    <div class="overflow-hidden rounded-2xl bg-white shadow">
+        <div class="border-b px-6 py-5">
+            <h2 class="text-xl font-bold text-gray-800">Tabla de amortizacion estimada</h2>
+            <p class="text-sm text-gray-500">Sistema frances: cuota fija, interes sobre saldo y ajuste final por redondeo.</p>
+        </div>
 
-    <h3 class="text-xl font-bold mt-8 mb-3">Simulador de amortización</h3>
-
-    <div class="overflow-x-auto">
-        <table class="w-full border text-sm">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="border p-2">#</th>
-                    <th class="border p-2">Cuota</th>
-                    <th class="border p-2">Interés</th>
-                    <th class="border p-2">Capital</th>
-                    <th class="border p-2">Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($tabla as $fila)
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-purple-700 text-white">
                     <tr>
-                        <td class="border p-2">{{ $fila['numero'] }}</td>
-                        <td class="border p-2">${{ number_format($fila['cuota'], 2) }}</td>
-                        <td class="border p-2">${{ number_format($fila['interes'], 2) }}</td>
-                        <td class="border p-2">${{ number_format($fila['capital'], 2) }}</td>
-                        <td class="border p-2">${{ number_format($fila['saldo'], 2) }}</td>
+                        <th class="p-4">#</th>
+                        <th class="p-4">Vencimiento</th>
+                        <th class="p-4">Cuota</th>
+                        <th class="p-4">Interes</th>
+                        <th class="p-4">Capital</th>
+                        <th class="p-4">Saldo</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse($tabla as $fila)
+                        <tr class="border-b last:border-b-0">
+                            <td class="p-4">{{ $fila['numero'] }}</td>
+                            <td class="p-4">{{ $fila['fecha_vencimiento'] }}</td>
+                            <td class="p-4">${{ number_format($fila['cuota_total'], 2) }}</td>
+                            <td class="p-4">${{ number_format($fila['interes'], 2) }}</td>
+                            <td class="p-4">${{ number_format($fila['capital'], 2) }}</td>
+                            <td class="p-4">${{ number_format($fila['saldo_restante'], 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-gray-500">
+                                Ingresa un monto y plazo validos para simular.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
