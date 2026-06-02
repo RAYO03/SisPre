@@ -90,12 +90,16 @@
 
                         <input name="monto_original"
                                type="number"
-                               min="1000"
-                               max="1000000"
+                               min="{{ $montoMinimo }}"
+                               max="{{ $montoMaximo }}"
                                step="0.01"
                                value="{{ old('monto_original') }}"
                                class="w-full rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                required>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Rango permitido: ${{ number_format($montoMinimo, 2) }} a ${{ number_format($montoMaximo, 2) }}.
+                        </p>
 
                         <x-input-error :messages="$errors->get('monto_original')" class="mt-2" />
                     </div>

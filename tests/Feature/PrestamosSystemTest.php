@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\DB;
 
+
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
 });
@@ -79,6 +80,20 @@ test('sistema frances genera cuotas y cierra el saldo en cero', function () {
     expect(round(array_sum(array_column($tabla, 'cuota_total')), 2))->toBe(11110.38);
 });
 
+test('resumen indica ajuste final cuando el redondeo cambia la ultima cuota', function () {
+    $resumen = app(AmortizacionService::class)->generarResumen(
+        capital: 500,
+        plazoMeses: 3,
+        fechaInicio: Carbon::parse('2026-06-01')
+    );
+
+    expect($resumen['pago_mensual'])->toBe(171.69);
+    expect($resumen['pago_final'])->toBe(171.70);
+    expect($resumen['ajuste_redondeo'])->toBe(0.01);
+    expect($resumen['total_pagar'])->toBe(515.08);
+    expect(round(array_sum(array_column($resumen['tabla'], 'cuota_total')), 2))->toBe($resumen['total_pagar']);
+});
+
 test('cliente solo puede acceder a rutas de cliente y no al panel admin', function () {
     $cliente = clienteUser();
 
@@ -137,6 +152,24 @@ test('cliente crea solicitud valida con tasa calculada por el servicio', functio
     expect($solicitud)->not->toBeNull();
     expect((float) $solicitud->tasa_interes)->toBe(19.90);
     expect($solicitud->estado)->toBe(Estado::SOLICITADO);
+});
+
+test('solicitud de prestamo rechaza monto mayor al maximo permitido', function () {
+    $cliente = clienteUser();
+
+    $this->actingAs($cliente)
+        ->from(route('cliente.solicitud'))
+        ->post(route('cliente.solicitud.store'), [
+            'monto_solicitado' => 1000000.01,
+            'plazo_meses' => 12,
+            'motivo' => 'Negocio',
+            'ingreso_mensual' => 25000,
+            'tipo_empleo' => 'Empleado',
+            'antiguedad_laboral' => '1 a 2 años',
+        ])
+        ->assertSessionHasErrors(['monto_solicitado']);
+
+    expect(SolicitudPrestamo::count())->toBe(0);
 });
 
 test('admin crea prestamo activo con tabla de amortizacion', function () {
@@ -249,7 +282,41 @@ test('pago tardio se aplica primero a mora antes que a cuota normal', function (
     expect((float) $primeraCuota->monto_pagado)->toBe(0.0);
 });
 
-test('pago desde admin actualmente no actualiza tabla de amortizacion', function () {
+test('cliente puede liquidar saldo completo incluyendo mora pendiente', function () {
+    $cliente = clienteUser();
+    $prestamo = crearPrestamoParaCliente($cliente);
+    $primeraCuota = $prestamo->cuotas()->orderBy('numero')->first();
+
+    $primeraCuota->update([
+        'fecha_vencimiento' => now()->subDays(10)->toDateString(),
+        'estado' => Estado::VENCIDA,
+    ]);
+
+    $prestamo->refresh()->load('cuotas');
+    $totalConMora = round($prestamo->cuotas->sum(
+        fn (Cuota $cuota) => $cuota->saldo_pendiente + $cuota->calcularInteresMoratorio()
+    ), 2);
+
+    $this->actingAs($cliente)
+        ->post(route('cliente.pagos.store', $prestamo->id), [
+            'monto' => $totalConMora,
+            'metodo_pago' => 'Transferencia',
+            'fecha_pago' => now()->toDateString(),
+            'return_to' => 'pagos',
+        ])
+        ->assertRedirect(route('cliente.pagos'));
+
+    $pago = Pago::first();
+    $prestamo->refresh();
+
+    expect((float) $pago->interes_moratorio_pagado)->toBeGreaterThan(0);
+    expect((float) $prestamo->saldo_pendiente)->toBe(0.0);
+    expect($prestamo->estado)->toBe(Estado::LIQUIDADO);
+    expect($prestamo->cuotas()->where('estado', Estado::PARCIALMENTE_PAGADA)->count())->toBe(0);
+    expect($prestamo->cuotas()->where('estado', Estado::PAGADA)->count())->toBe($prestamo->plazo_meses);
+});
+
+test('admin registra pago y actualiza tabla de amortizacion', function () {
     $admin = adminUser();
     $cliente = clienteUser();
     $prestamo = crearPrestamoParaCliente($cliente);
@@ -260,9 +327,50 @@ test('pago desde admin actualmente no actualiza tabla de amortizacion', function
             'prestamo_id' => $prestamo->id,
             'monto' => 100,
             'metodo_pago' => 'Efectivo',
+            'fecha_pago' => now()->toDateString(),
         ])
         ->assertRedirect(route('admin.pagos'));
 
-    expect((float) $primeraCuota->refresh()->monto_pagado)->toBe(0.0);
-    expect(DB::table('cuota_pago')->count())->toBe(0);
+    $pago = Pago::first();
+    $primeraCuota->refresh();
+
+    expect((float) $pago->interes_ordinario_pagado)->toBe(100.0);
+    expect((float) $pago->capital_pagado)->toBe(0.0);
+    expect((float) $primeraCuota->monto_pagado)->toBe(100.0);
+    expect($primeraCuota->estado)->toBe(Estado::PARCIALMENTE_PAGADA);
+    expect(DB::table('cuota_pago')->count())->toBe(1);
+});
+
+test('admin puede liquidar prestamo incluyendo mora pendiente', function () {
+    $admin = adminUser();
+    $cliente = clienteUser();
+    $prestamo = crearPrestamoParaCliente($cliente);
+    $primeraCuota = $prestamo->cuotas()->orderBy('numero')->first();
+
+    $primeraCuota->update([
+        'fecha_vencimiento' => now()->subDays(10)->toDateString(),
+        'estado' => Estado::VENCIDA,
+    ]);
+
+    $prestamo->refresh()->load('cuotas');
+    $totalConMora = round($prestamo->cuotas->sum(
+        fn (Cuota $cuota) => $cuota->saldo_pendiente + $cuota->calcularInteresMoratorio()
+    ), 2);
+
+    $this->actingAs($admin)
+        ->post(route('admin.pagos.store'), [
+            'prestamo_id' => $prestamo->id,
+            'monto' => $totalConMora,
+            'metodo_pago' => 'Transferencia',
+            'fecha_pago' => now()->toDateString(),
+        ])
+        ->assertRedirect(route('admin.pagos'));
+
+    $pago = Pago::first();
+    $prestamo->refresh();
+
+    expect((float) $pago->interes_moratorio_pagado)->toBeGreaterThan(0);
+    expect((float) $prestamo->saldo_pendiente)->toBe(0.0);
+    expect($prestamo->estado)->toBe(Estado::LIQUIDADO);
+    expect($prestamo->cuotas()->where('estado', Estado::PARCIALMENTE_PAGADA)->count())->toBe(0);
 });
