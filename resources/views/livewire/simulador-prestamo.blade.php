@@ -4,10 +4,16 @@
             <div>
                 <label class="mb-2 block text-sm font-semibold text-gray-700">Monto solicitado</label>
                 <input type="number"
-                       min="1000"
+                       min="{{ $montoMinimo }}"
+                       max="{{ $montoMaximo }}"
                        step="0.01"
                        wire:model.live="capital"
                        class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                @if($capital > 0 && ! $montoValido)
+                    <p class="mt-2 text-sm font-medium text-red-600">
+                        El monto debe estar entre ${{ number_format($montoMinimo, 2) }} y ${{ number_format($montoMaximo, 2) }}.
+                    </p>
+                @endif
             </div>
 
             <div>
@@ -25,13 +31,23 @@
                 <input type="date"
                        wire:model.live="fecha_inicio"
                        class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                @if(! $fechaValida)
+                    <p class="mt-2 text-sm font-medium text-red-600">
+                        Ingresa una fecha valida.
+                    </p>
+                @endif
             </div>
         </div>
 
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="rounded-xl bg-purple-50 p-5">
-                <p class="text-sm text-gray-500">Pago mensual estimado</p>
+                <p class="text-sm text-gray-500">Pago mensual regular</p>
                 <p class="mt-1 text-3xl font-bold text-purple-700">${{ number_format($resumen['pago_mensual'], 2) }}</p>
+                @if(abs($resumen['ajuste_redondeo']) >= 0.01)
+                    <p class="mt-2 text-xs font-medium text-purple-900">
+                        Ultima cuota ajustada: ${{ number_format($resumen['pago_final'], 2) }}
+                    </p>
+                @endif
             </div>
 
             <div class="rounded-xl bg-blue-50 p-5">
@@ -46,13 +62,26 @@
         </div>
 
         <div class="mt-6 flex justify-end">
-            <a href="{{ route('cliente.solicitud', [
-                    'monto_solicitado' => $capital,
-                    'plazo_meses' => $plazo_meses,
-                ]) }}"
-               class="rounded-xl bg-purple-700 px-6 py-3 font-semibold text-white hover:bg-purple-800">
-                Continuar solicitud
-            </a>
+            @if($puedeContinuar)
+                <button type="button"
+                        wire:click="continuarSolicitud"
+                        wire:loading.attr="disabled"
+                        wire:target="continuarSolicitud"
+                        class="rounded-xl bg-purple-700 px-6 py-3 font-semibold text-white hover:bg-purple-800 disabled:cursor-wait disabled:opacity-70">
+                    <span wire:loading.remove wire:target="continuarSolicitud">
+                        Continuar solicitud
+                    </span>
+                    <span wire:loading wire:target="continuarSolicitud">
+                        Continuando...
+                    </span>
+                </button>
+            @else
+                <button type="button"
+                        disabled
+                        class="cursor-not-allowed rounded-xl bg-gray-300 px-6 py-3 font-semibold text-gray-500">
+                    Continuar solicitud
+                </button>
+            @endif
         </div>
     </div>
 
