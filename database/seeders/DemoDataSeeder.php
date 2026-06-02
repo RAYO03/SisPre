@@ -2,27 +2,43 @@
 
 namespace Database\Seeders;
 
+use App\Http\Controllers\Cliente\SolicitudPrestamoController;
 use App\Models\Administrador;
 use App\Models\Cliente;
 use App\Models\Pago;
 use App\Models\Prestamo;
 use App\Models\SolicitudPrestamo;
 use App\Models\User;
+use App\Support\Estado;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class DemoDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::updateOrCreate(
+        $this->call(RolePermissionSeeder::class);
+
+
+            $antiguedad = [
+            'Menos de 6 meses',
+            '6 meses a 1 año',
+            '1 a 2 años',
+            'Más de 2 años',
+        ];
+
+        $motivos = ['Emergencia', 'Negocio', 'Personal'];
+
+    $admin = User::updateOrCreate(
             ['email' => 'admin@credify.test'],
             [
                 'name' => 'Admin Credify',
                 'password' => Hash::make('password'),
-                'tipo_usuario' => 'admin',
             ]
         );
+
+        $admin->syncRoles([Role::findOrCreate('admin', 'web')]);
 
         Administrador::updateOrCreate(
             ['user_id' => $admin->id],
@@ -66,9 +82,10 @@ class DemoDataSeeder extends Seeder
                 [
                     'name' => $data['name'],
                     'password' => Hash::make('password'),
-                    'tipo_usuario' => 'cliente',
                 ]
             );
+
+            $user->syncRoles([Role::findOrCreate('cliente', 'web')]);
 
             Cliente::updateOrCreate(
                 ['user_id' => $user->id],
@@ -91,11 +108,11 @@ class DemoDataSeeder extends Seeder
                 'monto_solicitado' => 15000,
                 'plazo_meses' => 12,
                 'tasa_interes' => 18,
-                'motivo' => 'Capital de trabajo',
+                'motivo' => fake()->randomElement($motivos),
                 'ingreso_mensual' => 28000,
                 'tipo_empleo' => 'Empleado',
-                'antiguedad_laboral' => '3 anos',
-                'estado' => 'pendiente',
+                'antiguedad_laboral' => fake()->randomElement($antiguedad),
+                'estado' => Estado::SOLICITADO,
             ],
             [
                 'user' => $clientes[1],
@@ -103,11 +120,11 @@ class DemoDataSeeder extends Seeder
                 'monto_solicitado' => 22000,
                 'plazo_meses' => 18,
                 'tasa_interes' => 20,
-                'motivo' => 'Gastos personales',
+                'motivo' => fake()->randomElement($motivos),
                 'ingreso_mensual' => 35000,
                 'tipo_empleo' => 'Independiente',
-                'antiguedad_laboral' => '5 anos',
-                'estado' => 'aprobada',
+                'antiguedad_laboral' => fake()->randomElement($antiguedad),
+                'estado' => Estado::APROBADO,
             ],
             [
                 'user' => $clientes[2],
@@ -115,11 +132,11 @@ class DemoDataSeeder extends Seeder
                 'monto_solicitado' => 8000,
                 'plazo_meses' => 6,
                 'tasa_interes' => 16,
-                'motivo' => 'Reparacion de vehiculo',
+                'motivo' => fake()->randomElement($motivos),
                 'ingreso_mensual' => 18000,
                 'tipo_empleo' => 'Empleado',
-                'antiguedad_laboral' => '1 ano',
-                'estado' => 'rechazada',
+                'antiguedad_laboral' => fake()->randomElement($antiguedad),
+                'estado' => Estado::RECHAZADO,
             ],
         ];
 
@@ -144,7 +161,7 @@ class DemoDataSeeder extends Seeder
                 ]
             );
 
-            if ($data['estado'] !== 'aprobada') {
+            if ($data['estado'] !== Estado::APROBADO) {
                 continue;
             }
 
@@ -160,7 +177,7 @@ class DemoDataSeeder extends Seeder
                     'pago_mensual' => $pagoMensual,
                     'fecha_inicio' => now()->subMonth()->toDateString(),
                     'fecha_final' => now()->addMonths($data['plazo_meses'] - 1)->toDateString(),
-                    'estado' => 'activo',
+                    'estado' => Estado::ACTIVO,
                 ]
             );
 
@@ -173,7 +190,7 @@ class DemoDataSeeder extends Seeder
                     'metodo_pago' => 'Transferencia',
                     'fecha_pago' => now()->subDays(5)->toDateString(),
                     'comprobante' => null,
-                    'estado' => 'pagado',
+                    'estado' => Estado::LIQUIDADO,
                 ]
             );
         }
