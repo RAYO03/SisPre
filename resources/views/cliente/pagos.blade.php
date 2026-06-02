@@ -51,7 +51,7 @@
                             <td class="p-4">{{ $pago->fecha_pago }}</td>
                             <td class="p-4">
                                 <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                    {{ ucfirst($pago->estado) }}
+                                    {{ $pago->estado_label }}
                                 </span>
                             </td>
                         </tr>
@@ -63,7 +63,14 @@
                         </tr>
                     @endforelse
                 </tbody>
+
             </table>
+
+            @if($pagos->hasPages())
+                <div class="border-t px-6 py-4">
+                    {{ $pagos->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
