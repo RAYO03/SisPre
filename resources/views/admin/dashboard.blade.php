@@ -66,7 +66,7 @@
                 Préstamos por estado
             </h2>
 
-            @if($prestamosPorEstado->count() > 0)
+            @if($prestamosPorEstado->sum() > 0)
                 <div class="w-64 h-64 mx-auto">
                     <canvas id="prestamosEstadoChart"></canvas>
                 </div>
@@ -118,14 +118,14 @@
         });
     }
 
-    const estados = @json($prestamosPorEstado->keys());
+    const estados = @json($prestamosPorEstadoLabels);
     const cantidadesEstado = @json($prestamosPorEstado->values());
 
     if (document.getElementById('prestamosEstadoChart')) {
         new Chart(document.getElementById('prestamosEstadoChart'), {
             type: 'doughnut',
             data: {
-                labels: estados.map(estado => estado.charAt(0).toUpperCase() + estado.slice(1)),
+                labels: estados,
                 datasets: [{
                     data: cantidadesEstado,
                     backgroundColor: [

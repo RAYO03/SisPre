@@ -1,14 +1,22 @@
 <x-app-layout>
     <div class="p-8">
-        <h1 class="text-3xl font-bold text-purple-700 mb-6">
-            Prestamos activos
-        </h1>
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-3xl font-bold text-purple-700">
+                Prestamos activos
+            </h1>
+
+            <a href="{{ route('admin.prestamos.create') }}"
+               class="rounded bg-purple-700 px-5 py-3 font-semibold text-white hover:bg-purple-800">
+                Crear prestamo
+            </a>
+        </div>
 
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <table class="w-full">
                 <thead class="bg-purple-700 text-white">
                     <tr>
                         <th class="p-4 text-left">Cliente</th>
+                        <th class="p-4 text-right">Monto original</th>
                         <th class="p-4 text-right">Monto total</th>
                         <th class="p-4 text-right">Saldo</th>
                         <th class="p-4 text-right">Pago mensual</th>
@@ -23,6 +31,10 @@
                         <tr class="border-b hover:bg-gray-50">
                             <td class="p-4 font-medium text-gray-800">
                                 {{ $prestamo->user->name ?? 'N/A' }}
+                            </td>
+
+                            <td class="p-4 text-right">
+                                ${{ number_format($prestamo->monto_original ?? $prestamo->solicitud?->monto_solicitado ?? $prestamo->monto_total, 2) }}
                             </td>
 
                             <td class="p-4 text-right">
@@ -43,7 +55,7 @@
 
                             <td class="p-4 text-center">
                                 <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                    {{ ucfirst($prestamo->estado) }}
+                                    {{ $prestamo->estado_label }}
                                 </span>
                             </td>
 
@@ -56,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-6 text-center text-gray-500">
+                            <td colspan="8" class="p-6 text-center text-gray-500">
                                 No hay prestamos activos.
                             </td>
                         </tr>

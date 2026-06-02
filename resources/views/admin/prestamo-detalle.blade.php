@@ -24,8 +24,18 @@
                 </div>
 
                 <div>
+                    <label class="font-bold text-gray-700">Monto original</label>
+                    <p>${{ number_format($prestamo->monto_original ?? $prestamo->solicitud?->monto_solicitado ?? $prestamo->monto_total, 2) }}</p>
+                </div>
+
+                <div>
                     <label class="font-bold text-gray-700">Monto total</label>
                     <p>${{ number_format($prestamo->monto_total, 2) }}</p>
+                </div>
+
+                <div>
+                    <label class="font-bold text-gray-700">Tasa anual</label>
+                    <p>{{ number_format($prestamo->tasa_interes, 2) }}%</p>
                 </div>
 
                 <div>
@@ -57,7 +67,7 @@
                     <label class="font-bold text-gray-700">Estado</label>
                     <p>
                         <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                            {{ ucfirst($prestamo->estado) }}
+                            {{ $prestamo->estado_label }}
                         </span>
                     </p>
                 </div>
