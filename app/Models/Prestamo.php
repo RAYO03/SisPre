@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Support\Estado;
 
 class Prestamo extends Model
 {
@@ -13,6 +14,7 @@ class Prestamo extends Model
         'user_id',
         'solicitud_prestamo_id',
         'folio',
+        'monto_original',
         'monto_total',
         'saldo_pendiente',
         'plazo_meses',
@@ -39,5 +41,15 @@ class Prestamo extends Model
     public function pagos()
     {
         return $this->hasMany(Pago::class);
+    }
+
+    public function cuotas()
+    {
+        return $this->hasMany(Cuota::class)->orderBy('numero');
+    }
+
+    public function getEstadoLabelAttribute(): string
+    {
+        return Estado::label($this->estado);
     }
 }
