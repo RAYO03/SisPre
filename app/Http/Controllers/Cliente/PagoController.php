@@ -9,7 +9,9 @@ use App\Models\Prestamo;
 use App\Services\AmortizacionService;
 use App\Services\PagoService;
 use App\Support\Estado;
+use App\Support\PrestamoConfig;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class PagoController extends Controller
 {
@@ -57,7 +59,9 @@ class PagoController extends Controller
         $montoMaximo = $pagoService->montoTotalPendienteParaPago($prestamo);
         $moraPendiente = $pagoService->moraPendienteParaPago($prestamo);
 
-        return view('cliente.realizar-pago', compact('prestamo', 'returnTo', 'montoSugerido', 'montoMaximo', 'moraPendiente', 'siguienteCuota', 'resumenPago'));
+        $metodosPago = PrestamoConfig::metodosPago();
+
+        return view('cliente.realizar-pago', compact('prestamo', 'returnTo', 'montoSugerido', 'montoMaximo', 'moraPendiente', 'siguienteCuota', 'resumenPago', 'metodosPago'));
     }
 
     public function store(Request $request, $prestamo_id, AmortizacionService $amortizacion, PagoService $pagoService)
@@ -81,7 +85,7 @@ class PagoController extends Controller
 
         $request->validate([
             'monto' => ['required', 'numeric', 'min:0.01', 'max:' . $montoMaximo],
-            'metodo_pago' => 'required|in:Transferencia,Deposito,Efectivo,Tarjeta',
+            'metodo_pago' => ['required', Rule::in(PrestamoConfig::metodosPago())],
             'fecha_pago' => 'required|date|before_or_equal:today',
             'comprobante' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'return_to' => 'nullable|in:estado-cuenta,pagos',
