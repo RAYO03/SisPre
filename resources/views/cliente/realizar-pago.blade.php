@@ -11,20 +11,27 @@
             </a>
         </div>
 
-        <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
             <div class="rounded-2xl bg-white p-6 shadow">
                 <p class="text-sm text-gray-500">Prestamo</p>
                 <h2 class="text-xl font-bold text-gray-800">{{ $prestamo->folio }}</h2>
             </div>
 
             <div class="rounded-2xl bg-white p-6 shadow">
-                <p class="text-sm text-gray-500">Saldo pendiente</p>
+                <p class="text-sm text-gray-500">Saldo sin mora</p>
                 <h2 class="text-xl font-bold text-red-600">${{ number_format($prestamo->saldo_pendiente, 2) }}</h2>
             </div>
 
             <div class="rounded-2xl bg-white p-6 shadow">
-                <p class="text-sm text-gray-500">Pago mensual</p>
-                <h2 class="text-xl font-bold text-green-700">${{ number_format($prestamo->pago_mensual, 2) }}</h2>
+                <p class="text-sm text-gray-500">Mora pendiente</p>
+                <h2 class="text-xl font-bold {{ $moraPendiente > 0 ? 'text-red-600' : 'text-gray-800' }}">
+                    ${{ number_format($moraPendiente, 2) }}
+                </h2>
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+                <p class="text-sm text-gray-500">Total para liquidar</p>
+                <h2 class="text-xl font-bold text-green-700">${{ number_format($montoMaximo, 2) }}</h2>
             </div>
         </div>
 
@@ -112,6 +119,9 @@
                            value="{{ old('monto', $montoSugerido) }}"
                            class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                            required>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Maximo permitido: ${{ number_format($montoMaximo, 2) }}
+                    </p>
                     <x-input-error :messages="$errors->get('monto')" class="mt-2" />
                 </div>
 
