@@ -64,11 +64,16 @@
 
                         <input name="monto_solicitado"
                                type="number"
-                               min="1000"
+                               min="{{ $montoMinimo }}"
+                               max="{{ $montoMaximo }}"
                                step="0.01"
                                value="{{ old('monto_solicitado', request('monto_solicitado')) }}"
                                class="w-full rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                required>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Rango permitido: ${{ number_format($montoMinimo, 2) }} a ${{ number_format($montoMaximo, 2) }}.
+                        </p>
 
                         <x-input-error :messages="$errors->get('monto_solicitado')" class="mt-2" />
                     </div>
@@ -84,7 +89,7 @@
 
                             <option value="">Selecciona un plazo</option>
 
-                            @foreach([3, 6, 12, 18, 24] as $plazo)
+                            @foreach($plazos as $plazo)
                                 <option value="{{ $plazo }}" @selected((string) old('plazo_meses', request('plazo_meses')) === (string) $plazo)>
                                     {{ $plazo }} meses
                                 </option>
@@ -122,7 +127,7 @@
 
                             <option value="">Selecciona un motivo</option>
 
-                            @foreach(['Emergencia', 'Negocio', 'Personal'] as $motivo)
+                            @foreach($motivos as $motivo)
                                 <option value="{{ $motivo }}" @selected(old('motivo') === $motivo)>
                                     {{ $motivo }}
                                 </option>
@@ -159,7 +164,7 @@
 
                             <option value="">Selecciona una opción</option>
 
-                            @foreach(['Empleado', 'Independiente', 'Negocio propio'] as $tipo)
+                            @foreach($tiposEmpleo as $tipo)
                                 <option value="{{ $tipo }}" @selected(old('tipo_empleo') === $tipo)>
                                     {{ $tipo }}
                                 </option>
@@ -181,7 +186,7 @@
 
                             <option value="">Selecciona antigüedad</option>
 
-                            @foreach(['Menos de 6 meses', '6 meses a 1 año', '1 a 2 años', 'Más de 2 años'] as $antiguedad)
+                            @foreach($antiguedades as $antiguedad)
                                 <option value="{{ $antiguedad }}" @selected(old('antiguedad_laboral') === $antiguedad)>
                                     {{ $antiguedad }}
                                 </option>
