@@ -141,7 +141,7 @@
                     <select name="metodo_pago"
                             class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                             required>
-                        @foreach(['Transferencia', 'Deposito', 'Efectivo', 'Tarjeta'] as $metodo)
+                        @foreach($metodosPago as $metodo)
                             <option value="{{ $metodo }}" @selected(old('metodo_pago') === $metodo)>
                                 {{ $metodo }}
                             </option>
