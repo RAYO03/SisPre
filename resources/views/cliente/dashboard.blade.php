@@ -144,17 +144,17 @@
 
                                 <td class="p-4">
 
-                                    @if($solicitud->estado == 'aprobada')
+                                    @if($solicitud->estado == \App\Support\Estado::APROBADO)
                                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                                            Aprobada
+                                            {{ $solicitud->estado_label }}
                                         </span>
-                                    @elseif($solicitud->estado == 'rechazada')
+                                    @elseif($solicitud->estado == \App\Support\Estado::RECHAZADO)
                                         <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
-                                            Rechazada
+                                            {{ $solicitud->estado_label }}
                                         </span>
                                     @else
                                         <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                                            Pendiente
+                                            {{ $solicitud->estado_label }}
                                         </span>
                                     @endif
 
