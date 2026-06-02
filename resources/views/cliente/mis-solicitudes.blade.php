@@ -32,11 +32,11 @@
 
                             <td class="p-4 text-center">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold
-                                    @if($solicitud->estado === 'pendiente') bg-yellow-100 text-yellow-700
-                                    @elseif($solicitud->estado === 'aprobada') bg-green-100 text-green-700
-                                    @elseif($solicitud->estado === 'rechazada') bg-red-100 text-red-700
+                                    @if($solicitud->estado === \App\Support\Estado::SOLICITADO) bg-yellow-100 text-yellow-700
+                                    @elseif($solicitud->estado === \App\Support\Estado::APROBADO) bg-green-100 text-green-700
+                                    @elseif($solicitud->estado === \App\Support\Estado::RECHAZADO) bg-red-100 text-red-700
                                     @else bg-gray-100 text-gray-700 @endif">
-                                    {{ ucfirst($solicitud->estado) }}
+                                    {{ $solicitud->estado_label }}
                                 </span>
                             </td>
                         </tr>

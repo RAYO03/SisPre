@@ -9,7 +9,8 @@
                 <thead class="bg-purple-600 text-white">
                     <tr>
                         <th class="p-4 text-left">Folio</th>
-                        <th class="p-4 text-left">Monto</th>
+                        <th class="p-4 text-left">Monto solicitado</th>
+                        <th class="p-4 text-left">Total a pagar</th>
                         <th class="p-4 text-left">Saldo</th>
                         <th class="p-4 text-left">Plazo</th>
                         <th class="p-4 text-left">Estado</th>
@@ -21,6 +22,12 @@
                     @forelse($prestamos ?? [] as $prestamo)
                         <tr class="border-b">
                             <td class="p-4">{{ $prestamo->folio }}</td>
+
+                            <td class="p-4">
+                                <span class="font-semibold text-gray-800">
+                                    ${{ number_format($prestamo->monto_original ?? $prestamo->solicitud?->monto_solicitado ?? $prestamo->monto_total, 2) }}
+                                </span>
+                            </td>
 
                             <td class="p-4">
                                 ${{ number_format($prestamo->monto_total, 2) }}
@@ -36,11 +43,11 @@
 
                             <td class="p-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold
-                                    @if($prestamo->estado === 'activo') bg-green-100 text-green-700
-                                    @elseif($prestamo->estado === 'pagado') bg-blue-100 text-blue-700
-                                    @elseif($prestamo->estado === 'vencido') bg-red-100 text-red-700
+                                    @if($prestamo->estado === \App\Support\Estado::ACTIVO) bg-green-100 text-green-700
+                                    @elseif($prestamo->estado === \App\Support\Estado::LIQUIDADO) bg-blue-100 text-blue-700
+                                    @elseif($prestamo->estado === \App\Support\Estado::EN_MORA) bg-red-100 text-red-700
                                     @else bg-gray-100 text-gray-700 @endif">
-                                    {{ ucfirst($prestamo->estado) }}
+                                    {{ $prestamo->estado_label }}
                                 </span>
                             </td>
 
@@ -51,7 +58,7 @@
                                         Ver
                                     </a>
 
-                                    @if($prestamo->estado === 'activo')
+                                    @if(in_array($prestamo->estado, [\App\Support\Estado::ACTIVO, \App\Support\Estado::EN_MORA], true))
                                         <a href="{{ route('cliente.pagos.create', $prestamo->id) }}"
                                            class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                                             Pagar
@@ -62,7 +69,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="p-6 text-center">
+                            <td colspan="7" class="p-6 text-center">
                                 No tienes prestamos registrados
                             </td>
                         </tr>
