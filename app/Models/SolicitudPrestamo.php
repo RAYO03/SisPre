@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Support\Estado;
 
 class SolicitudPrestamo extends Model
 {
@@ -34,5 +35,10 @@ class SolicitudPrestamo extends Model
     public function prestamo()
     {
         return $this->hasOne(Prestamo::class);
+    }
+
+    public function getEstadoLabelAttribute(): string
+    {
+        return Estado::label($this->estado);
     }
 }
