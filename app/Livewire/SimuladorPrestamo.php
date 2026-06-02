@@ -26,6 +26,8 @@ class SimuladorPrestamo extends Component
             return [
                 'tasa_anual' => 0,
                 'pago_mensual' => 0,
+                'pago_final' => 0,
+                'ajuste_redondeo' => 0,
                 'total_pagar' => 0,
                 'tabla' => [],
             ];

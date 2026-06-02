@@ -30,8 +30,13 @@
 
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="rounded-xl bg-purple-50 p-5">
-                <p class="text-sm text-gray-500">Pago mensual estimado</p>
+                <p class="text-sm text-gray-500">Pago mensual regular</p>
                 <p class="mt-1 text-3xl font-bold text-purple-700">${{ number_format($resumen['pago_mensual'], 2) }}</p>
+                @if(abs($resumen['ajuste_redondeo']) >= 0.01)
+                    <p class="mt-2 text-xs font-medium text-purple-900">
+                        Ultima cuota ajustada: ${{ number_format($resumen['pago_final'], 2) }}
+                    </p>
+                @endif
             </div>
 
             <div class="rounded-xl bg-blue-50 p-5">

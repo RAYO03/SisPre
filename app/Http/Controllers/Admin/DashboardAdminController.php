@@ -35,11 +35,10 @@ class DashboardAdminController extends Controller
         $pagosMes = Pago::whereBetween('fecha_pago', [$inicio, $fin])
             ->sum('monto');
 
-        $prestamosSemana = Prestamo::selectRaw('WEEK(created_at) as semana, COUNT(*) as total')
-            ->whereBetween('created_at', [$inicio, $fin])
-            ->groupBy('semana')
-            ->orderBy('semana')
-            ->pluck('total', 'semana');
+        $prestamosSemana = Prestamo::whereBetween('created_at', [$inicio, $fin])
+            ->get()
+            ->groupBy(fn (Prestamo $prestamo) => Carbon::parse($prestamo->created_at)->weekOfYear)
+            ->map->count();
 
         $prestamosPorEstado = collect([
             Estado::ACTIVO => Prestamo::where('estado', Estado::ACTIVO)

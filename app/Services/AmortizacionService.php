@@ -31,10 +31,14 @@ class AmortizacionService
     {
         $tasaAnual = $this->tasaAnualPorPlazo($plazoMeses);
         $tabla = $this->generarTabla($capital, $tasaAnual, $plazoMeses, $fechaInicio ?? now());
+        $pagoMensual = $this->calcularCuotaFija($capital, $tasaAnual, $plazoMeses);
+        $pagoFinal = $tabla === [] ? 0 : (float) end($tabla)['cuota_total'];
 
         return [
             'tasa_anual' => $tasaAnual,
-            'pago_mensual' => $this->calcularCuotaFija($capital, $tasaAnual, $plazoMeses),
+            'pago_mensual' => $pagoMensual,
+            'pago_final' => $pagoFinal,
+            'ajuste_redondeo' => round($pagoFinal - $pagoMensual, 2),
             'total_pagar' => round(array_sum(array_column($tabla, 'cuota_total')), 2),
             'tabla' => $tabla,
         ];
