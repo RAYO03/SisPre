@@ -23,94 +23,132 @@ Route::get('/', function () {
 })->name('inicio');
 
 //Cliente
-Route::middleware(['auth'])->prefix('cliente')->name('cliente.')->group(function () {
+Route::middleware(['auth', 'role:cliente'])->prefix('cliente')->name('cliente.')->group(function () {
 
     Route::get('/dashboard', [DashboardClienteController::class, 'index'])
+        ->middleware('permission:cliente.dashboard.ver')
         ->name('dashboard');
 
     Route::get('/simulador', [SolicitudPrestamoController::class, 'simulador'])
+        ->middleware('permission:cliente.simulador.ver')
         ->name('simulador');
 
     Route::get('/solicitud', [SolicitudPrestamoController::class, 'create'])
+        ->middleware('permission:cliente.solicitudes.crear')
         ->name('solicitud');
 
     Route::post('/solicitud', [SolicitudPrestamoController::class, 'store'])
+        ->middleware('permission:cliente.solicitudes.crear')
         ->name('solicitud.store');
 
     Route::get('/confirmacion/{id}', [SolicitudPrestamoController::class, 'confirmacion'])
+        ->middleware('permission:cliente.solicitudes.ver')
         ->name('confirmacion');
 
     Route::get('/mis-solicitudes', [SolicitudPrestamoController::class, 'index'])
+        ->middleware('permission:cliente.solicitudes.ver')
         ->name('solicitudes');
 
     Route::get('/prestamos', [PrestamoController::class, 'index'])
+        ->middleware('permission:cliente.prestamos.ver')
         ->name('prestamos');
 
+    Route::get('/estado-cuenta-general', [PrestamoController::class, 'estadoCuentaGeneral'])
+        ->middleware('permission:cliente.estado-cuenta.ver')
+        ->name('estado-cuenta-general');
+
     Route::get('/estado-cuenta/{id}', [PrestamoController::class, 'estadoCuenta'])
+        ->middleware('permission:cliente.estado-cuenta.ver')
         ->name('estado-cuenta');
 
     Route::get('/pagos', [PagoController::class, 'index'])
+        ->middleware('permission:cliente.pagos.ver')
         ->name('pagos');
 
     Route::get('/pagos/create/{prestamo_id}', [PagoController::class, 'create'])
+        ->middleware('permission:cliente.pagos.crear')
         ->name('pagos.create');
 
     Route::post('/pagos/store/{prestamo_id}', [PagoController::class, 'store'])
+        ->middleware('permission:cliente.pagos.crear')
         ->name('pagos.store');
     
     Route::get('/perfil', [PerfilController::class, 'show'])
+        ->middleware('permission:cliente.perfil.ver')
         ->name('perfil');
 
     Route::get('/perfil/editar', [PerfilController::class, 'edit'])
+        ->middleware('permission:cliente.perfil.editar')
         ->name('perfil.edit');
 
     Route::patch('/perfil', [PerfilController::class, 'update'])
+        ->middleware('permission:cliente.perfil.editar')
         ->name('perfil.update');
 
 });
 
 //Administrador
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])
+        ->middleware('permission:admin.dashboard.ver')
         ->name('dashboard');
 
     //Solicitudes
     Route::get('/solicitudes', [SolicitudAdminController::class, 'index'])
+        ->middleware('permission:admin.solicitudes.ver')
         ->name('solicitudes');
 
     Route::post('/solicitudes/{id}/aprobar', [SolicitudAdminController::class, 'aprobar'])
+        ->middleware('permission:admin.solicitudes.aprobar')
         ->name('solicitudes.aprobar');
 
     Route::post('/solicitudes/{id}/rechazar', [SolicitudAdminController::class, 'rechazar'])
+        ->middleware('permission:admin.solicitudes.rechazar')
         ->name('solicitudes.rechazar');
 
     // Clientes
     Route::get('/clientes', [ClienteAdminController::class, 'index'])
+        ->middleware('permission:admin.clientes.ver')
         ->name('clientes');
 
     Route::get('/clientes/{id}', [ClienteAdminController::class, 'show'])
+        ->middleware('permission:admin.clientes.ver')
         ->name('clientes.show');
 
     // Prestamos
     Route::get('/prestamos', [PrestamoAdminController::class, 'index'])
+        ->middleware('permission:admin.prestamos.ver')
         ->name('prestamos');
 
+    Route::get('/prestamos/create', [PrestamoAdminController::class, 'create'])
+        ->middleware('permission:admin.prestamos.crear')
+        ->name('prestamos.create');
+
+    Route::post('/prestamos', [PrestamoAdminController::class, 'store'])
+        ->middleware('permission:admin.prestamos.crear')
+        ->name('prestamos.store');
+
     Route::get('/prestamos/{id}', [PrestamoAdminController::class, 'show'])
+        ->middleware('permission:admin.prestamos.ver')
         ->name('prestamos.show');
 
     // Pagos
     Route::get('/pagos', [PagoAdminController::class, 'index'])
+        ->middleware('permission:admin.pagos.ver')
         ->name('pagos');
 
     Route::get('/pagos/create', [PagoAdminController::class, 'create'])
+        ->middleware('permission:admin.pagos.crear')
         ->name('pagos.create');
 
     Route::post('/pagos/store', [PagoAdminController::class, 'store'])
+        ->middleware('permission:admin.pagos.crear')
         ->name('pagos.store');
 
     //Reportes
     Route::get('/reportes', [ReporteController::class, 'index'])
+        ->middleware('permission:admin.reportes.ver')
         ->name('reportes');
 });
 
