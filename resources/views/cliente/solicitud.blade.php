@@ -32,7 +32,7 @@
                                type="number"
                                min="1000"
                                step="0.01"
-                               value="{{ old('monto_solicitado') }}"
+                               value="{{ old('monto_solicitado', request('monto_solicitado')) }}"
                                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                required>
                         <x-input-error :messages="$errors->get('monto_solicitado')" class="mt-2" />
@@ -40,12 +40,16 @@
 
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-gray-700">Plazo en meses</label>
-                        <input name="plazo_meses"
-                               type="number"
-                               min="1"
-                               value="{{ old('plazo_meses') }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                               required>
+                        <select name="plazo_meses"
+                                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                required>
+                            <option value="">Selecciona un plazo</option>
+                            @foreach([3, 6, 12, 18, 24] as $plazo)
+                                <option value="{{ $plazo }}" @selected((string) old('plazo_meses', request('plazo_meses')) === (string) $plazo)>
+                                    {{ $plazo }} meses
+                                </option>
+                            @endforeach
+                        </select>
                         <x-input-error :messages="$errors->get('plazo_meses')" class="mt-2" />
                     </div>
 
@@ -64,7 +68,7 @@
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-gray-700">Motivo del prestamo</label>
                         <select name="motivo"
-                                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                                class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500" required>
                             <option value="">Selecciona un motivo</option>
                             @foreach(['Emergencia', 'Negocio', 'Personal'] as $motivo)
                                 <option value="{{ $motivo }}" @selected(old('motivo') === $motivo)>
@@ -97,16 +101,27 @@
                         <x-input-error :messages="$errors->get('tipo_empleo')" class="mt-2" />
                     </div>
 
-                    <div>
-                        <label class="mb-2 block text-sm font-semibold text-gray-700">Antiguedad laboral</label>
-                        <input name="antiguedad_laboral"
-                               type="text"
-                               value="{{ old('antiguedad_laboral') }}"
-                               placeholder="Ej. 2 años"
-                               class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                               required>
-                        <x-input-error :messages="$errors->get('antiguedad_laboral')" class="mt-2" />
-                    </div>
+
+
+                                    <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-700">
+                        Antigüedad laboral
+                    </label>
+
+                    <select name="antiguedad_laboral"
+                            class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                            required>
+                        <option value="">Selecciona antigüedad</option>
+
+                        @foreach(['Menos de 6 meses', '6 meses a 1 año', '1 a 2 años', 'Más de 2 años'] as $antiguedad)
+                            <option value="{{ $antiguedad }}" @selected(old('antiguedad_laboral') === $antiguedad)>
+                                {{ $antiguedad }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <x-input-error :messages="$errors->get('antiguedad_laboral')" class="mt-2" />
+                </div>
                 </div>
 
                 <div class="flex justify-end gap-3 border-t px-6 py-5">
