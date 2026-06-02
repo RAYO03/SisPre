@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SolicitudPrestamo;
 use App\Models\Prestamo;
+use App\Services\AmortizacionService;
+use App\Support\Estado;
 use Illuminate\Support\Facades\DB;
 
 class SolicitudAdminController extends Controller
@@ -16,17 +18,17 @@ class SolicitudAdminController extends Controller
         return view('admin.solicitudes', compact('solicitudes'));
     }
 
-    public function aprobar($id)
+    public function aprobar($id, AmortizacionService $amortizacion)
     {
-        $procesada = DB::transaction(function () use ($id) {
+        $procesada = DB::transaction(function () use ($id, $amortizacion) {
             $solicitud = SolicitudPrestamo::with('user')->lockForUpdate()->findOrFail($id);
 
-            if ($solicitud->estado !== 'pendiente') {
+            if ($solicitud->estado !== Estado::SOLICITADO) {
                 return false;
             }
 
             $solicitud->update([
-                'estado' => 'aprobada'
+                'estado' => Estado::APROBADO
             ]);
             $ultimoPrestamo = Prestamo::latest('id')->first();
 
@@ -34,20 +36,25 @@ class SolicitudAdminController extends Controller
         ? intval(substr($ultimoPrestamo->folio, -6)) + 1
         : 1;
 
-            Prestamo::firstOrCreate([
+            $prestamo = Prestamo::firstOrCreate([
                 'solicitud_prestamo_id' => $solicitud->id,
             ], [
                 'user_id' => $solicitud->user_id,
                 'folio' => 'PR-' . now()->year . '-' . str_pad($numero, 6, '0', STR_PAD_LEFT),
+                'monto_original' => $solicitud->monto_solicitado,
                 'monto_total' => $solicitud->total_pagar,
                 'saldo_pendiente' => $solicitud->total_pagar,
                 'plazo_meses' => $solicitud->plazo_meses,
                 'tasa_interes' => $solicitud->tasa_interes,
                 'pago_mensual' => $solicitud->pago_mensual,
                 'fecha_inicio' => now(),
-                'fecha_final' => now()->addMonths($solicitud->plazo_meses),
-                'estado' => 'activo',
+                'fecha_final' => now()->addMonthsNoOverflow($solicitud->plazo_meses),
+                'estado' => Estado::ACTIVO,
             ]);
+
+            if (! $prestamo->cuotas()->exists()) {
+                $amortizacion->guardarTabla($prestamo);
+            }
 
             return true;
         });
@@ -64,12 +71,12 @@ class SolicitudAdminController extends Controller
         $procesada = DB::transaction(function () use ($id) {
             $solicitud = SolicitudPrestamo::lockForUpdate()->findOrFail($id);
 
-            if ($solicitud->estado !== 'pendiente') {
+            if ($solicitud->estado !== Estado::SOLICITADO) {
                 return false;
             }
 
             $solicitud->update([
-                'estado' => 'rechazada'
+                'estado' => Estado::RECHAZADO
             ]);
 
             return true;
