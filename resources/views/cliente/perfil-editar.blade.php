@@ -63,10 +63,13 @@
                                 Fecha de nacimiento
                             </label>
                             <input type="date"
-                                   name="fecha_nacimiento"
-                                   value="{{ old('fecha_nacimiento', $cliente->fecha_nacimiento ?? '') }}"
-                                   class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
-                            <x-input-error :messages="$errors->get('fecha_nacimiento')" class="mt-2" />
+       name="fecha_nacimiento"
+       value="{{ old('fecha_nacimiento', $cliente->fecha_nacimiento ?? '') }}"
+       min="1900-01-01"
+       class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+       required>
+
+<x-input-error :messages="$errors->get('fecha_nacimiento')" class="mt-2" />
                         </div>
                     </div>
 
