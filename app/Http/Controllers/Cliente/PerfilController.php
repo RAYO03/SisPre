@@ -37,10 +37,20 @@ class PerfilController extends Controller
             'name'             => ['required', 'string', 'max:255'],
             'email'            => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'telefono'         => ['nullable', 'string', 'digits:10'],
-            'fecha_nacimiento' => ['nullable', 'date'],
+            'fecha_nacimiento' => [
+                'nullable',
+                'date_format:Y-m-d',
+                'after_or_equal:1900-01-01',
+                'before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+            ],
             'direccion'        => ['nullable', 'string', 'max:255'],
             'ciudad'           => ['nullable', 'string', 'max:100'],
             'estado'           => ['nullable', 'string', 'max:100'],
+        ], [
+            'fecha_nacimiento.required' => 'Ingresa tu fecha de nacimiento.',
+            'fecha_nacimiento.date_format' => 'Ingresa una fecha de nacimiento válida.',
+            'fecha_nacimiento.after_or_equal' => 'Ingresa una fecha de nacimiento válida.',
+            'fecha_nacimiento.before_or_equal' => 'Debes ser mayor de edad para usar esta plataforma.',
         ]);
 
         $user->update([
