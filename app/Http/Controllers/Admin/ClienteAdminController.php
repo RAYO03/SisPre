@@ -10,7 +10,7 @@ class ClienteAdminController extends Controller
     public function index()
     {
         $clientes = User::with('cliente')
-            ->where('tipo_usuario', 'cliente')
+            ->role('cliente')
             ->latest()
             ->get();
 
@@ -25,7 +25,7 @@ class ClienteAdminController extends Controller
             'prestamos',
             'pagos'
         ])
-            ->where('tipo_usuario', 'cliente')
+            ->role('cliente')
             ->findOrFail($id);
 
         return view('admin.cliente-detalle', [
