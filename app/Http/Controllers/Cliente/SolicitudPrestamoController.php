@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SolicitudPrestamo;
 use App\Services\AmortizacionService;
 use App\Support\Estado;
+use App\Support\PrestamoConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -26,29 +27,27 @@ class SolicitudPrestamoController extends Controller
         return view('cliente.simulador');
     }
 
-    public function create()
+    public function create(AmortizacionService $amortizacion)
     {
-        return view('cliente.solicitud');
+        return view('cliente.solicitud', [
+            'plazos' => $amortizacion->plazosPermitidos(),
+            'montoMinimo' => PrestamoConfig::MONTO_MINIMO,
+            'montoMaximo' => PrestamoConfig::MONTO_MAXIMO,
+            'motivos' => PrestamoConfig::motivos(),
+            'tiposEmpleo' => PrestamoConfig::tiposEmpleo(),
+            'antiguedades' => PrestamoConfig::antiguedadesLaborales(),
+        ]);
     }
 
     public function store(Request $request, AmortizacionService $amortizacion)
     {
-        $motivos = ['Emergencia', 'Negocio', 'Personal'];
-        $tiposEmpleo = ['Empleado', 'Independiente', 'Negocio propio'];
-        $antiguedades = [
-            'Menos de 6 meses',
-            '6 meses a 1 año',
-            '1 a 2 años',
-            'Más de 2 años',
-        ];
-
         $request->validate([
-            'monto_solicitado' => ['required', 'numeric', 'min:1000'],
+            'monto_solicitado' => ['required', 'numeric', 'min:' . PrestamoConfig::MONTO_MINIMO, 'max:' . PrestamoConfig::MONTO_MAXIMO],
             'plazo_meses' => ['required', 'integer', Rule::in($amortizacion->plazosPermitidos())],
-            'motivo' => ['required', 'string', Rule::in($motivos)],
+            'motivo' => ['required', 'string', Rule::in(PrestamoConfig::motivos())],
             'ingreso_mensual' => ['required', 'numeric', 'min:1'],
-            'tipo_empleo' => ['required', 'string', Rule::in($tiposEmpleo)],
-            'antiguedad_laboral' => ['required', 'string', Rule::in($antiguedades)],
+            'tipo_empleo' => ['required', 'string', Rule::in(PrestamoConfig::tiposEmpleo())],
+            'antiguedad_laboral' => ['required', 'string', Rule::in(PrestamoConfig::antiguedadesLaborales())],
         ]);
 
         $resumen = $amortizacion->generarResumen(

@@ -7,6 +7,7 @@ use App\Models\Prestamo;
 use App\Models\User;
 use App\Services\AmortizacionService;
 use App\Support\Estado;
+use App\Support\PrestamoConfig;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,15 +36,17 @@ class PrestamoAdminController extends Controller
             ->get();
 
         $plazos = $amortizacion->plazosPermitidos();
+        $montoMinimo = PrestamoConfig::MONTO_MINIMO;
+        $montoMaximo = PrestamoConfig::MONTO_MAXIMO;
 
-        return view('admin.prestamos-create', compact('clientes', 'plazos'));
+        return view('admin.prestamos-create', compact('clientes', 'plazos', 'montoMinimo', 'montoMaximo'));
     }
 
     public function store(Request $request, AmortizacionService $amortizacion)
     {
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'monto_original' => ['required', 'numeric', 'min:1000', 'max:1000000'],
+            'monto_original' => ['required', 'numeric', 'min:' . PrestamoConfig::MONTO_MINIMO, 'max:' . PrestamoConfig::MONTO_MAXIMO],
             'plazo_meses' => ['required', 'integer', Rule::in($amortizacion->plazosPermitidos())],
             'fecha_inicio' => ['required', 'date', 'after_or_equal:today'],
         ]);
