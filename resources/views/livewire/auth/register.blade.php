@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Spatie\Permission\Models\Role;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $name = '';
@@ -35,10 +36,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
         unset($validated['telefono']);
 
         $user = DB::transaction(function () use ($validated, $telefono) {
-            $user = User::create([
-                ...$validated,
-                'tipo_usuario' => 'cliente',
-            ]);
+            $user = User::create($validated);
+
+            $user->assignRole(Role::findOrCreate('cliente', 'web'));
 
             Cliente::create([
                 'user_id' => $user->id,
