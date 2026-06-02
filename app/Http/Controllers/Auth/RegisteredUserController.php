@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -46,8 +47,9 @@ class RegisteredUserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'tipo_usuario' => 'cliente',
             ]);
+
+            $user->assignRole(Role::findOrCreate('cliente', 'web'));
 
             Cliente::create([
                 'user_id' => $user->id,
@@ -61,6 +63,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('cliente.dashboard', absolute: false));
+        return redirect(route('cliente.dashboard', absolute: false))
+            ->with('success', 'Tu cuenta fue creada correctamente. Bienvenido.');
     }
 }
