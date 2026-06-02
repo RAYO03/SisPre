@@ -30,16 +30,13 @@
             @endisset
 
             @if (session('success'))
-                <div x-data="{ show: true }"
-                     x-init="setTimeout(() => show = false, 5000)"
-                     x-show="show"
-                     x-transition
-                     class="fixed right-6 top-6 z-50 flex items-center gap-4 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg">
+                <div id="flash-success"
+                     class="fixed right-6 top-6 z-50 flex items-center gap-4 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition duration-300">
                     <span>{{ session('success') }}</span>
                     <button type="button"
                             class="text-lg leading-none text-white/80 hover:text-white"
                             aria-label="Cerrar alerta"
-                            @click="show = false">
+                            onclick="document.getElementById('flash-success')?.remove()">
                         &times;
                     </button>
                 </div>
@@ -49,6 +46,18 @@
                 {{ $slot }}
             </main>
         </div>
+        <script>
+            setTimeout(() => {
+                const alert = document.getElementById('flash-success');
+
+                if (! alert) {
+                    return;
+                }
+
+                alert.classList.add('opacity-0', 'translate-y-[-0.25rem]');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        </script>
         @livewireScripts
     </body>
 </html>
