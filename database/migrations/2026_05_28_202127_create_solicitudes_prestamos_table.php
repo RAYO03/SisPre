@@ -22,15 +22,15 @@ return new class extends Migration
             $table->decimal('tasa_interes', 5, 2);
             $table->decimal('pago_mensual', 10, 2);
             $table->decimal('total_pagar', 10, 2);
-            $table->text('motivo')->nullable();
+            $table->text('motivo');
             $table->decimal('ingreso_mensual', 10, 2);
             $table->string('tipo_empleo');
             $table->string('antiguedad_laboral');
             $table->enum('estado', [
-                'pendiente',
-                'aprobada',
-                'rechazada'
-            ])->default('pendiente');
+                'solicitado',
+                'aprobado',
+                'rechazado'
+            ])->default('solicitado');
             $table->timestamps();
         });
     }

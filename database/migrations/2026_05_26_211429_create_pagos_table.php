@@ -19,10 +19,10 @@ return new class extends Migration {
             $table->date('fecha_pago');
             $table->string('comprobante')->nullable();
             $table->enum('estado', [
-                'pendiente',
-                'pagado',
+                'solicitado',
+                'liquidado',
                 'rechazado'
-            ])->default('pagado');
+            ])->default('liquidado');
             $table->timestamps();
         });
     }

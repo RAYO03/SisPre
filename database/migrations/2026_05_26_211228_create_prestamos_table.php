@@ -24,8 +24,8 @@ return new class extends Migration {
             $table->date('fecha_final');
             $table->enum('estado', [
                 'activo',
-                'pagado',
-                'vencido'
+                'liquidado',
+                'en_mora'
             ])->default('activo');
             
             $table->timestamps();
