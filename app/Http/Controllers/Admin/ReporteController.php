@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Prestamo;
 use App\Models\SolicitudPrestamo;
 use App\Models\Pago;
+use App\Support\Estado;
 
 class ReporteController extends Controller
 {
@@ -14,10 +15,10 @@ class ReporteController extends Controller
     {
         $totalClientes = Cliente::count();
         $totalSolicitudes = SolicitudPrestamo::count();
-        $prestamosActivos = Prestamo::where('estado', 'activo')->count();
-        $prestamosPagados = Prestamo::where('estado', 'pagado')->count();
+        $prestamosActivos = Prestamo::where('estado', Estado::ACTIVO)->count();
+        $prestamosPagados = Prestamo::where('estado', Estado::LIQUIDADO)->count();
         $totalPrestado = Prestamo::sum('monto_total');
-        $totalCobrado = Pago::where('estado', 'pagado')->sum('monto');
+        $totalCobrado = Pago::where('estado', Estado::LIQUIDADO)->sum('monto');
 
         return view('admin.reportes', compact(
             'totalClientes',
