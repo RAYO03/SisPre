@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pago;
 use App\Models\Prestamo;
+use App\Support\Estado;
 
 
 class PagoAdminController extends Controller
@@ -20,7 +21,7 @@ class PagoAdminController extends Controller
     public function create()
     {
         $prestamos = Prestamo::with('user')
-            ->where('estado', 'activo')
+            ->where('estado', Estado::ACTIVO)
             ->get();
 
         return view('admin.registrar-pago', compact('prestamos'));
@@ -43,14 +44,14 @@ class PagoAdminController extends Controller
             'monto' => $request->monto,
             'metodo_pago' => $request->metodo_pago,
             'fecha_pago' => now(),
-            'estado' => 'pagado',
+            'estado' => Estado::LIQUIDADO,
         ]);
 
         $prestamo->saldo_pendiente -= $request->monto;
 
         if ($prestamo->saldo_pendiente <= 0) {
             $prestamo->saldo_pendiente = 0;
-            $prestamo->estado = 'pagado';
+            $prestamo->estado = Estado::LIQUIDADO;
         }
 
         $prestamo->save();
