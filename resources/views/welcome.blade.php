@@ -43,7 +43,7 @@
 
                 @auth
                 
-                    @if(auth()->user()->tipo_usuario === 'admin')
+                    @if(auth()->user()->hasRole('admin'))
 
                         <a href="{{ route('admin.dashboard') }}"
                         class="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-lg font-semibold transition">
