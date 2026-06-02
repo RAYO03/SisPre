@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\SolicitudPrestamo;
 use App\Models\User;
+use App\Support\Estado;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -98,9 +99,9 @@ class SolicitudPrestamoFactory extends Factory
             'autoriza_validacion' => true,
 
             'estado' => fake()->randomElement([
-                'pendiente',
-                'aprobado',
-                'rechazado'
+                Estado::SOLICITADO,
+                Estado::APROBADO,
+                Estado::RECHAZADO
             ]),
         ];
     }
