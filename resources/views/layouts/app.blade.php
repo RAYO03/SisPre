@@ -13,6 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
     <body class="font-sans antialiased bg-slate-100">
         <div class="min-h-screen">
@@ -28,9 +29,26 @@
                 </header>
             @endisset
 
+            @if (session('success'))
+                <div x-data="{ show: true }"
+                     x-init="setTimeout(() => show = false, 5000)"
+                     x-show="show"
+                     x-transition
+                     class="fixed right-6 top-6 z-50 flex items-center gap-4 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg">
+                    <span>{{ session('success') }}</span>
+                    <button type="button"
+                            class="text-lg leading-none text-white/80 hover:text-white"
+                            aria-label="Cerrar alerta"
+                            @click="show = false">
+                        &times;
+                    </button>
+                </div>
+            @endif
+
             <main class="ml-56 p-6">
                 {{ $slot }}
             </main>
         </div>
+        @livewireScripts
     </body>
 </html>
