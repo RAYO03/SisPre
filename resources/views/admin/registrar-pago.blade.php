@@ -17,9 +17,9 @@
                 <p class="text-gray-500">No hay prestamos activos o en mora para registrar pagos.</p>
             </div>
         @else
-            <form method="GET" action="{{ route('admin.pagos.create') }}" class="rounded-xl bg-white p-5 shadow">
-                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <div class="lg:col-span-2">
+            @if($prestamoSeleccionado)
+                <div class="grid grid-cols-1 gap-4 rounded-xl bg-white p-5 shadow xl:grid-cols-5">
+                    <form method="GET" action="{{ route('admin.pagos.create') }}" class="xl:col-span-3">
                         <label class="mb-2 block text-sm font-semibold text-gray-700">Cliente / prestamo</label>
                         <select name="prestamo_id"
                                 onchange="this.form.submit()"
@@ -30,37 +30,25 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </form>
 
-                    <div>
-                        <label class="mb-2 block text-sm font-semibold text-gray-700">Fecha para calcular mora</label>
-                        <input type="date"
-                               name="fecha_pago"
-                               max="{{ now()->toDateString() }}"
-                               value="{{ $fechaPagoSeleccionada }}"
-                               onchange="this.form.submit()"
-                               class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
-                    </div>
-                </div>
-            </form>
+                    <div class="grid grid-cols-3 gap-3 xl:col-span-2">
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs font-medium text-gray-500">Saldo</p>
+                            <p class="mt-1 text-lg font-bold text-gray-900">${{ number_format($prestamoSeleccionado->saldo_pendiente, 2) }}</p>
+                        </div>
 
-            @if($prestamoSeleccionado)
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div class="rounded-xl bg-white p-5 shadow">
-                        <p class="text-sm font-medium text-gray-500">Saldo sin mora</p>
-                        <p class="mt-2 text-2xl font-bold text-gray-900">${{ number_format($prestamoSeleccionado->saldo_pendiente, 2) }}</p>
-                    </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs font-medium text-gray-500">Mora</p>
+                            <p class="mt-1 text-lg font-bold {{ $moraPendiente > 0 ? 'text-red-700' : 'text-gray-900' }}">
+                                ${{ number_format($moraPendiente, 2) }}
+                            </p>
+                        </div>
 
-                    <div class="rounded-xl bg-white p-5 shadow">
-                        <p class="text-sm font-medium text-gray-500">Mora pendiente</p>
-                        <p class="mt-2 text-2xl font-bold {{ $moraPendiente > 0 ? 'text-red-700' : 'text-gray-900' }}">
-                            ${{ number_format($moraPendiente, 2) }}
-                        </p>
-                    </div>
-
-                    <div class="rounded-xl bg-white p-5 shadow">
-                        <p class="text-sm font-medium text-gray-500">Total para liquidar</p>
-                        <p class="mt-2 text-2xl font-bold text-green-700">${{ number_format($montoMaximo, 2) }}</p>
+                        <div class="rounded-lg bg-green-50 p-3">
+                            <p class="text-xs font-medium text-gray-500">Liquidar</p>
+                            <p class="mt-1 text-lg font-bold text-green-700">${{ number_format($montoMaximo, 2) }}</p>
+                        </div>
                     </div>
                 </div>
 
