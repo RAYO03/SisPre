@@ -154,6 +154,24 @@ test('cliente crea solicitud valida con tasa calculada por el servicio', functio
     expect($solicitud->estado)->toBe(Estado::SOLICITADO);
 });
 
+test('solicitud de prestamo rechaza monto mayor al maximo permitido', function () {
+    $cliente = clienteUser();
+
+    $this->actingAs($cliente)
+        ->from(route('cliente.solicitud'))
+        ->post(route('cliente.solicitud.store'), [
+            'monto_solicitado' => 1000000.01,
+            'plazo_meses' => 12,
+            'motivo' => 'Negocio',
+            'ingreso_mensual' => 25000,
+            'tipo_empleo' => 'Empleado',
+            'antiguedad_laboral' => '1 a 2 años',
+        ])
+        ->assertSessionHasErrors(['monto_solicitado']);
+
+    expect(SolicitudPrestamo::count())->toBe(0);
+});
+
 test('admin crea prestamo activo con tabla de amortizacion', function () {
     $admin = adminUser();
     $cliente = clienteUser();
