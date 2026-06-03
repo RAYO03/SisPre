@@ -15,7 +15,7 @@ class DashboardAdminController extends Controller
     public function index(Request $request)
     {
         $mes = $request->input('mes', now()->format('Y-m'));
-
+        
         $inicio = Carbon::parse($mes . '-01')->startOfMonth();
         $fin = Carbon::parse($mes . '-01')->endOfMonth();
 

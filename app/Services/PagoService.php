@@ -126,6 +126,26 @@ class PagoService
             });
     }
 
+    public function cuotasParaResumen(Prestamo $prestamo, int $limite = 5, ?Carbon $fechaReferencia = null)
+    {
+        return $prestamo->cuotas
+            ->sortBy('numero')
+            ->take($limite)
+            ->map(function (Cuota $cuota) use ($fechaReferencia) {
+                $mora = $cuota->calcularInteresMoratorio(fechaReferencia: $fechaReferencia);
+
+                return [
+                    'numero' => $cuota->numero,
+                    'fecha_vencimiento' => $cuota->fecha_vencimiento,
+                    'saldo_cuota' => $cuota->saldo_pendiente,
+                    'mora' => $mora,
+                    'por_cubrir' => round($cuota->saldo_pendiente + $mora, 2),
+                    'estado' => $cuota->estado_label,
+                    'estado_raw' => $cuota->estado,
+                ];
+            });
+    }
+
     public function actualizarEstadoPrestamo(Prestamo $prestamo): void
     {
         $prestamo->refresh();

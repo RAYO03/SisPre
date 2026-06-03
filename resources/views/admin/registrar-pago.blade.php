@@ -141,7 +141,7 @@
 
                 <details class="overflow-hidden rounded-xl bg-white shadow">
                     <summary class="cursor-pointer border-b px-5 py-4 text-lg font-bold text-gray-800">
-                        Proximas cuotas
+                        Cuotas del prestamo
                     </summary>
 
                     <div class="overflow-x-auto">
@@ -170,7 +170,11 @@
                                             ${{ number_format($cuota['por_cubrir'], 2) }}
                                         </td>
                                         <td class="p-4 text-center">
-                                            <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                                            <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                                {{ $cuota['estado_raw'] === \App\Support\Estado::PAGADA ? 'bg-green-100 text-green-700' : '' }}
+                                                {{ $cuota['estado_raw'] === \App\Support\Estado::PARCIALMENTE_PAGADA ? 'bg-blue-100 text-blue-700' : '' }}
+                                                {{ $cuota['estado_raw'] === \App\Support\Estado::VENCIDA ? 'bg-red-100 text-red-700' : '' }}
+                                                {{ in_array($cuota['estado_raw'], [\App\Support\Estado::PENDIENTE, \App\Support\Estado::ACTIVO], true) ? 'bg-yellow-100 text-yellow-700' : '' }}">
                                                 {{ $cuota['estado'] }}
                                             </span>
                                         </td>
@@ -178,7 +182,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="6" class="p-6 text-center text-gray-500">
-                                            No hay cuotas pendientes.
+                                            No hay cuotas para mostrar.
                                         </td>
                                     </tr>
                                 @endforelse

@@ -65,7 +65,11 @@ class PagoAdminController extends Controller
                 $montoSugerido = $resumenPago['total_sugerido'];
                 $montoMaximo = $pagoService->montoTotalPendienteParaPago($prestamoSeleccionado, $fechaPago);
                 $moraPendiente = $pagoService->moraPendienteParaPago($prestamoSeleccionado, $fechaPago);
-                $cuotasResumen = $pagoService->cuotasPendientesParaResumen($prestamoSeleccionado, 5, $fechaPago);
+                $cuotasResumen = $pagoService->cuotasParaResumen(
+                    $prestamoSeleccionado,
+                    $prestamoSeleccionado->cuotas->count(),
+                    $fechaPago
+                );
             }
         }
 
