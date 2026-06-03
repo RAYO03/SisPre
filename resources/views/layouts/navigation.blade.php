@@ -1,7 +1,7 @@
 @php
-    $navBase = 'group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-all duration-300';
-    $navInactive = 'text-purple-100/80 hover:bg-white/10 hover:text-white';
-    $navActive = 'bg-purple-500/25 text-white shadow-lg shadow-purple-900/30 ring-1 ring-purple-300/40';
+    $navBase = 'group relative flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold transition-all duration-300';
+    $navInactive = 'text-purple-100/80 hover:bg-white/10 hover:text-white hover:scale-[1.03]';
+    $navActive = 'bg-gradient-to-r from-purple-600/70 via-fuchsia-600/60 to-purple-700/70 text-white shadow-lg shadow-purple-900/40 ring-1 ring-purple-300/40';
 @endphp
 
 <nav
@@ -13,12 +13,38 @@
         })
     "
     :class="open ? 'w-72' : 'w-20'"
-    class="fixed left-4 top-4 bottom-4 z-50 overflow-hidden rounded-3xl border border-purple-300/20 bg-purple-950/80 text-white shadow-2xl shadow-purple-950/40 backdrop-blur-xl transition-all duration-500 ease-in-out"
+    class="fixed left-4 top-4 bottom-4 z-50 overflow-hidden rounded-3xl border border-purple-300/20 bg-purple-950/85 text-white shadow-2xl shadow-purple-950/50 backdrop-blur-xl transition-all duration-500 ease-in-out"
 >
+    <style>
+        @keyframes float {
+            0%,100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(-25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-slide-right {
+            animation: slideRight .8s ease-out forwards;
+        }
+    </style>
+
     <div class="absolute -top-20 -left-20 h-48 w-48 rounded-full bg-purple-500/30 blur-3xl"></div>
     <div class="absolute -bottom-20 -right-20 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl"></div>
 
-    <div class="relative flex h-full flex-col p-3">
+    <div class="relative flex h-full flex-col p-3 animate-slide-right">
 
         <div class="mb-4 flex items-center" :class="open ? 'justify-between' : 'justify-center'">
 
@@ -28,15 +54,17 @@
                 x-transition.opacity.duration.300ms
                 class="flex items-center gap-3 overflow-hidden"
             >
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-purple-900/30 animate-float">
                     <img src="{{ asset('images/credify-logo3.png') }}"
                          alt="Credify"
-                         class="h-9 w-9 object-contain">
+                         class="h-10 w-10 object-contain">
                 </div>
 
                 <div>
-                    <h1 class="text-lg font-bold leading-tight">Credify</h1>
-                    <p class="text-xs text-purple-200">
+                    <h1 class="bg-gradient-to-r from-white via-purple-100 to-fuchsia-200 bg-clip-text text-xl font-black leading-tight text-transparent">
+                        Credify
+                    </h1>
+                    <p class="text-xs font-semibold text-purple-200">
                         {{ auth()->user()->hasRole('admin') ? 'Administrador' : 'Cliente' }}
                     </p>
                 </div>
@@ -48,7 +76,7 @@
                     localStorage.setItem('sidebarOpen', open);
                     window.dispatchEvent(new Event('sidebar-toggled'));
                 "
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/5 hover:bg-white/15 transition"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/10 shadow-lg transition hover:scale-110 hover:bg-white/20"
             >
                 <svg x-show="open" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
@@ -60,7 +88,7 @@
             </button>
         </div>
 
-        
+        <div class="mb-4 h-px bg-gradient-to-r from-transparent via-purple-300/40 to-transparent"></div>
 
         <div class="flex-1 space-y-2 overflow-y-auto pr-1">
 
@@ -127,7 +155,7 @@
                 @can('cliente.solicitudes.crear')
                     <a href="{{ route('cliente.solicitud') }}" class="{{ $navBase }} {{ request()->routeIs('cliente.solicitud') || request()->routeIs('cliente.solicitud.store') ? $navActive : $navInactive }}" :class="open ? 'justify-start' : 'justify-center'">
                         <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        <span x-show="open" x-transition.opacity>Solicitar prestamo</span>
+                        <span x-show="open" x-transition.opacity>Solicitar préstamo</span>
                     </a>
                 @endcan
 
@@ -141,7 +169,7 @@
                 @can('cliente.prestamos.ver')
                     <a href="{{ route('cliente.prestamos') }}" class="{{ $navBase }} {{ request()->routeIs('cliente.prestamos') ? $navActive : $navInactive }}" :class="open ? 'justify-start' : 'justify-center'">
                         <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.2 0-4 .9-4 2s1.8 2 4 2 4 .9 4 2-1.8 2-4 2m0-10v12"/></svg>
-                        <span x-show="open" x-transition.opacity>Mis prestamos</span>
+                        <span x-show="open" x-transition.opacity>Mis préstamos</span>
                     </a>
                 @endcan
 
@@ -169,15 +197,15 @@
             @endrole
         </div>
 
-        <div class="mt-3 rounded-2xl bg-black/25 p-2">
-            <div x-show="open" x-transition.opacity.duration.300ms class="mb-2 flex items-center gap-3 rounded-xl bg-white/10 px-3 py-2">
-                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500 font-bold">
+        <div class="mt-3 rounded-3xl bg-black/25 p-2 shadow-inner">
+            <div x-show="open" x-transition.opacity.duration.300ms class="mb-2 flex items-center gap-3 rounded-2xl bg-white/10 px-3 py-2">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-600 font-black shadow-lg shadow-purple-900/40">
                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                 </div>
 
                 <div class="min-w-0">
-                    <p class="truncate text-sm font-bold">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-purple-200">
+                    <p class="truncate text-sm font-black">{{ Auth::user()->name }}</p>
+                    <p class="text-xs font-semibold text-purple-200">
                         {{ auth()->user()->hasRole('admin') ? 'Administrador' : 'Cliente' }}
                     </p>
                 </div>
@@ -187,7 +215,7 @@
                 @csrf
 
                 <button
-                    class="flex w-full items-center justify-center gap-3 rounded-xl bg-white/10 px-3 py-3 text-sm font-bold text-white transition hover:bg-red-600"
+                    class="flex w-full items-center justify-center gap-3 rounded-2xl bg-white/10 px-3 py-3 text-sm font-bold text-white transition hover:scale-[1.03] hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600"
                 >
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H9m4 8H5a2 2 0 01-2-2V6a2 2 0 012-2h8"/>

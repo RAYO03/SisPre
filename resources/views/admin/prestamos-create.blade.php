@@ -1,8 +1,14 @@
 <x-app-layout>
     <style>
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(25px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .animate-slide-up {
@@ -18,11 +24,11 @@
             <div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
                 <div>
-                    <span class="inline-flex rounded-full border border-purple-200 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700">
+                    <span class="inline-flex rounded-full border border-purple-300 bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-700">
                         Administración de préstamos
                     </span>
 
-                    <h1 class="mt-4 text-4xl font-black text-purple-700">
+                    <h1 class="mt-4 text-5xl font-black bg-gradient-to-r from-purple-700 via-fuchsia-600 to-purple-800 bg-clip-text text-transparent">
                         Crear Préstamo
                     </h1>
 
@@ -32,7 +38,7 @@
                 </div>
 
                 <a href="{{ route('admin.prestamos') }}"
-                   class="rounded-2xl border border-purple-200 bg-white px-5 py-3 text-sm font-bold text-purple-700 shadow-sm transition hover:scale-105 hover:bg-purple-50">
+                   class="rounded-2xl border border-purple-300 bg-white px-5 py-3 text-sm font-bold text-purple-700 shadow-sm transition hover:scale-105 hover:bg-purple-100">
                     ← Volver
                 </a>
 
@@ -46,7 +52,8 @@
                 @csrf
 
                 {{-- HEADER --}}
-                <div class="border-b border-gray-200 bg-gradient-to-r from-purple-50 to-fuchsia-50 px-6 py-5">
+                <div class="border-b border-gray-200 bg-gradient-to-r from-purple-100 via-fuchsia-50 to-purple-100 px-6 py-5">
+
                     <h2 class="text-2xl font-black text-gray-800">
                         Información del préstamo
                     </h2>
@@ -54,12 +61,14 @@
                     <p class="mt-1 text-sm text-gray-500">
                         Completa los datos para generar el préstamo del cliente.
                     </p>
+
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
 
                     {{-- CLIENTE --}}
                     <div class="md:col-span-2">
+
                         <label class="mb-2 block text-sm font-semibold text-purple-700">
                             Cliente
                         </label>
@@ -68,22 +77,30 @@
                                 class="w-full rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                 required>
 
-                            <option value="">Selecciona un cliente</option>
+                            <option value="">
+                                Selecciona un cliente
+                            </option>
 
                             @foreach($clientes as $cliente)
+
                                 <option value="{{ $cliente->id }}"
                                     @selected(old('user_id') == $cliente->id)>
+
                                     {{ $cliente->name }} - {{ $cliente->email }}
+
                                 </option>
+
                             @endforeach
 
                         </select>
 
                         <x-input-error :messages="$errors->get('user_id')" class="mt-2" />
+
                     </div>
 
                     {{-- MONTO --}}
                     <div>
+
                         <label class="mb-2 block text-sm font-semibold text-purple-700">
                             Monto original
                         </label>
@@ -97,15 +114,20 @@
                                class="w-full rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                required>
 
-                        <p class="mt-1 text-xs text-gray-500">
-                            Rango permitido: ${{ number_format($montoMinimo, 2) }} a ${{ number_format($montoMaximo, 2) }}.
+                        <p class="mt-2 text-xs text-gray-500">
+                            Rango permitido:
+                            ${{ number_format($montoMinimo, 2) }}
+                            -
+                            ${{ number_format($montoMaximo, 2) }}
                         </p>
 
                         <x-input-error :messages="$errors->get('monto_original')" class="mt-2" />
+
                     </div>
 
                     {{-- PLAZO --}}
                     <div>
+
                         <label class="mb-2 block text-sm font-semibold text-purple-700">
                             Plazo
                         </label>
@@ -114,22 +136,30 @@
                                 class="w-full rounded-xl border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                 required>
 
-                            <option value="">Selecciona un plazo</option>
+                            <option value="">
+                                Selecciona un plazo
+                            </option>
 
                             @foreach($plazos as $plazo)
+
                                 <option value="{{ $plazo }}"
                                     @selected(old('plazo_meses') == $plazo)>
+
                                     {{ $plazo }} meses
+
                                 </option>
+
                             @endforeach
 
                         </select>
 
                         <x-input-error :messages="$errors->get('plazo_meses')" class="mt-2" />
+
                     </div>
 
                     {{-- FECHA --}}
                     <div>
+
                         <label class="mb-2 block text-sm font-semibold text-purple-700">
                             Fecha de inicio
                         </label>
@@ -142,24 +172,44 @@
                                required>
 
                         <x-input-error :messages="$errors->get('fecha_inicio')" class="mt-2" />
+
                     </div>
 
-                    {{-- RESUMEN --}}
-                    <div class="rounded-2xl border border-purple-200 bg-purple-50 p-5">
-                        <h3 class="mb-2 text-sm font-bold text-purple-700">
-                            Información
+                    {{-- PANEL INFO --}}
+                    <div class="rounded-3xl border-t-4 border-purple-600 bg-gradient-to-br from-purple-50 to-white p-5 shadow-lg">
+
+                        <h3 class="mb-3 text-lg font-black text-purple-700">
+                            Información automática
                         </h3>
 
                         <p class="text-sm text-gray-600">
-                            Al crear el préstamo se generarán automáticamente:
+                            Al crear el préstamo el sistema generará automáticamente:
                         </p>
 
-                        <ul class="mt-3 space-y-1 text-sm text-gray-700">
-                            <li>✔ Tabla de amortización</li>
-                            <li>✔ Cuotas mensuales</li>
-                            <li>✔ Estado activo</li>
-                            <li>✔ Folio automático</li>
+                        <ul class="mt-4 space-y-2 text-sm font-medium text-gray-700">
+
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-600">✔</span>
+                                Tabla de amortización
+                            </li>
+
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-600">✔</span>
+                                Cuotas mensuales
+                            </li>
+
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-600">✔</span>
+                                Estado activo
+                            </li>
+
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-600">✔</span>
+                                Folio automático
+                            </li>
+
                         </ul>
+
                     </div>
 
                 </div>
@@ -173,7 +223,7 @@
                     </a>
 
                     <button type="submit"
-                            class="rounded-2xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-3 font-bold text-white shadow-lg shadow-purple-300 transition hover:scale-105 hover:from-purple-700 hover:to-fuchsia-700">
+                            class="rounded-2xl bg-gradient-to-r from-purple-700 via-fuchsia-600 to-purple-800 px-6 py-3 font-bold text-white shadow-xl shadow-purple-400 transition hover:scale-105">
                         Crear préstamo
                     </button>
 
@@ -184,4 +234,5 @@
         </div>
 
     </div>
+
 </x-app-layout>
