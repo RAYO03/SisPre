@@ -31,10 +31,31 @@
                     </p>
                 </div>
 
-                <a href="{{ route('admin.prestamos') }}"
-                   class="rounded-2xl border border-purple-200 bg-white px-5 py-3 text-sm font-bold text-purple-700 shadow-sm transition hover:scale-105 hover:bg-purple-50">
-                    ← Volver
-                </a>
+                <div class="flex flex-wrap gap-3">
+
+                    <a href="{{ route('admin.prestamos') }}"
+                    class="rounded-2xl border border-purple-200 bg-white px-5 py-3 text-sm font-bold text-purple-700 shadow-sm transition hover:scale-105 hover:bg-purple-50">
+                        ← Volver
+                    </a>
+
+                    <a href="{{ route('admin.prestamos.edit', $prestamo->id) }}"
+                    class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow transition hover:scale-105 hover:bg-blue-700">
+                        ✏️ Editar
+                    </a>
+
+                    <form action="{{ route('admin.prestamos.destroy', $prestamo->id) }}"
+                        method="POST"
+                        onsubmit="return confirm('¿Seguro que deseas eliminar este préstamo? También se eliminarán sus pagos y cuotas.')">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit"
+                                class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow transition hover:scale-105 hover:bg-red-700">
+                            🗑️ Eliminar
+                        </button>
+                    </form>
+
+                </div>
 
             </div>
 

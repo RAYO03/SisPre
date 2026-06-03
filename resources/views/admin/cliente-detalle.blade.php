@@ -71,8 +71,25 @@
 
                     </div>
 
-                    <div class="rounded-2xl border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm">
-                        Cliente registrado
+                    <div class="flex flex-wrap gap-3">
+
+                        <a href="{{ route('admin.clientes.edit', $user->id) }}"
+                        class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow transition hover:scale-105 hover:bg-blue-700">
+                            ✏️ Editar
+                        </a>
+
+                        <form action="{{ route('admin.clientes.destroy', $user->id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Seguro que deseas eliminar este cliente?')">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit"
+                                    class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow transition hover:scale-105 hover:bg-red-700">
+                                🗑️ Eliminar
+                            </button>
+                        </form>
+
                     </div>
 
                 </div>

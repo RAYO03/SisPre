@@ -51,10 +51,10 @@ class PrestamoAdminController extends Controller
             'fecha_inicio' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
-        $cliente = User::role('cliente')
-            ->findOrFail($validated['user_id']);
+        $cliente = User::role('cliente')->findOrFail($validated['user_id']);
 
         $fechaInicio = Carbon::parse($validated['fecha_inicio']);
+
         $resumen = $amortizacion->generarResumen(
             (float) $validated['monto_original'],
             (int) $validated['plazo_meses'],
@@ -105,5 +105,106 @@ class PrestamoAdminController extends Controller
             ->findOrFail($id);
 
         return view('admin.prestamo-detalle', compact('prestamo'));
+    }
+
+    public function edit($id, AmortizacionService $amortizacion)
+    {
+        $prestamo = Prestamo::with(['user', 'solicitud'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('solicitud')
+                    ->orWhereHas('solicitud', fn ($solicitud) => $solicitud->where('estado', Estado::APROBADO));
+            })
+            ->findOrFail($id);
+
+        $clientes = User::role('cliente')
+            ->orderBy('name')
+            ->get();
+
+        $plazos = $amortizacion->plazosPermitidos();
+        $montoMinimo = PrestamoConfig::MONTO_MINIMO;
+        $montoMaximo = PrestamoConfig::MONTO_MAXIMO;
+
+        return view('admin.prestamo-editar', compact(
+            'prestamo',
+            'clientes',
+            'plazos',
+            'montoMinimo',
+            'montoMaximo'
+        ));
+    }
+
+    public function update(Request $request, $id, AmortizacionService $amortizacion)
+    {
+        $prestamo = Prestamo::with(['pagos', 'cuotas'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('solicitud')
+                    ->orWhereHas('solicitud', fn ($solicitud) => $solicitud->where('estado', Estado::APROBADO));
+            })
+            ->findOrFail($id);
+
+        $validated = $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+            'monto_original' => ['required', 'numeric', 'min:' . PrestamoConfig::MONTO_MINIMO, 'max:' . PrestamoConfig::MONTO_MAXIMO],
+            'plazo_meses' => ['required', 'integer', Rule::in($amortizacion->plazosPermitidos())],
+            'fecha_inicio' => ['required', 'date'],
+            'estado' => ['required', Rule::in([
+                Estado::ACTIVO,
+                Estado::EN_MORA,
+                Estado::LIQUIDADO,
+            ])],
+        ]);
+
+        $cliente = User::role('cliente')->findOrFail($validated['user_id']);
+
+        $fechaInicio = Carbon::parse($validated['fecha_inicio']);
+
+        $resumen = $amortizacion->generarResumen(
+            (float) $validated['monto_original'],
+            (int) $validated['plazo_meses'],
+            $fechaInicio
+        );
+
+        DB::transaction(function () use ($prestamo, $cliente, $validated, $fechaInicio, $resumen, $amortizacion) {
+            $prestamo->update([
+                'user_id' => $cliente->id,
+                'monto_original' => $validated['monto_original'],
+                'monto_total' => $resumen['total_pagar'],
+                'saldo_pendiente' => $resumen['total_pagar'],
+                'plazo_meses' => $validated['plazo_meses'],
+                'tasa_interes' => $resumen['tasa_anual'],
+                'pago_mensual' => $resumen['pago_mensual'],
+                'fecha_inicio' => $fechaInicio->toDateString(),
+                'fecha_final' => $fechaInicio->copy()->addMonthsNoOverflow((int) $validated['plazo_meses'])->toDateString(),
+                'estado' => $validated['estado'],
+            ]);
+
+            $prestamo->cuotas()->delete();
+
+            $amortizacion->guardarTabla($prestamo);
+        });
+
+        return redirect()
+            ->route('admin.prestamos.show', $prestamo->id)
+            ->with('success', 'Préstamo actualizado correctamente.');
+    }
+
+    public function destroy($id)
+    {
+        $prestamo = Prestamo::with(['pagos', 'cuotas'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('solicitud')
+                    ->orWhereHas('solicitud', fn ($solicitud) => $solicitud->where('estado', Estado::APROBADO));
+            })
+            ->findOrFail($id);
+
+        DB::transaction(function () use ($prestamo) {
+            $prestamo->pagos()->delete();
+            $prestamo->cuotas()->delete();
+            $prestamo->delete();
+        });
+
+        return redirect()
+            ->route('admin.prestamos')
+            ->with('success', 'Préstamo eliminado correctamente.');
     }
 }

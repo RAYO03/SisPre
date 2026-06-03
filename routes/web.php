@@ -116,6 +116,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         ->middleware('permission:admin.clientes.ver')
         ->name('clientes.show');
 
+    Route::get('/clientes/{id}/editar', [ClienteAdminController::class, 'edit'])
+        ->middleware('permission:admin.clientes.ver')
+        ->name('clientes.edit');
+
+    Route::put('/clientes/{id}', [ClienteAdminController::class, 'update'])
+        ->middleware('permission:admin.clientes.ver')
+        ->name('clientes.update');
+
+    Route::delete('/clientes/{id}', [ClienteAdminController::class, 'destroy'])
+        ->middleware('permission:admin.clientes.ver')
+        ->name('clientes.destroy');
+
     // Prestamos
     Route::get('/prestamos', [PrestamoAdminController::class, 'index'])
         ->middleware('permission:admin.prestamos.ver')
@@ -132,6 +144,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/prestamos/{id}', [PrestamoAdminController::class, 'show'])
         ->middleware('permission:admin.prestamos.ver')
         ->name('prestamos.show');
+
+    Route::get('/prestamos/{id}/editar', [PrestamoAdminController::class, 'edit'])
+        ->middleware('permission:admin.prestamos.ver')
+        ->name('prestamos.edit');
+
+    Route::put('/prestamos/{id}', [PrestamoAdminController::class, 'update'])
+        ->middleware('permission:admin.prestamos.ver')
+        ->name('prestamos.update');
+
+    Route::delete('/prestamos/{id}', [PrestamoAdminController::class, 'destroy'])
+        ->middleware('permission:admin.prestamos.ver')
+        ->name('prestamos.destroy');
 
     // Pagos
     Route::get('/pagos', [PagoAdminController::class, 'index'])
@@ -150,6 +174,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reportes', [ReporteController::class, 'index'])
         ->middleware('permission:admin.reportes.ver')
         ->name('reportes');
+
+    
 });
 
 //Auth Breeze
