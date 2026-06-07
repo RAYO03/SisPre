@@ -140,6 +140,7 @@
                                value="{{ old('telefono', $cliente->telefono ?? '') }}"
                                maxlength="10"
                                pattern="[0-9]{10}"
+                               required
                                class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
 
                         <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
@@ -154,8 +155,10 @@
 
                         <input type="date"
                                name="fecha_nacimiento"
+                               id="fecha_nacimiento"
                                value="{{ old('fecha_nacimiento', $cliente->fecha_nacimiento ?? '') }}"
                                min="1900-01-01"
+                               max="{{ now()->subYears(18)->format('Y-m-d') }}"
                                required
                                class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
 
@@ -172,6 +175,7 @@
                         <input type="text"
                                name="direccion"
                                value="{{ old('direccion', $cliente->direccion ?? '') }}"
+                               required
                                class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
 
                         <x-input-error :messages="$errors->get('direccion')" class="mt-2" />
@@ -187,6 +191,7 @@
                         <input type="text"
                                name="ciudad"
                                value="{{ old('ciudad', $cliente->ciudad ?? '') }}"
+                               required
                                class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
 
                         <x-input-error :messages="$errors->get('ciudad')" class="mt-2" />
@@ -202,6 +207,7 @@
                         <input type="text"
                                name="estado"
                                value="{{ old('estado', $cliente->estado ?? '') }}"
+                               required
                                class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
 
                         <x-input-error :messages="$errors->get('estado')" class="mt-2" />
@@ -230,5 +236,27 @@
         </div>
 
     </div>
+
+    <script>
+        const fechaNacimiento = document.getElementById('fecha_nacimiento');
+
+        fechaNacimiento?.addEventListener('invalid', () => {
+            if (fechaNacimiento.validity.rangeOverflow) {
+                fechaNacimiento.setCustomValidity('Solo se aceptan fechas de nacimiento de usuarios mayores de edad.');
+                return;
+            }
+
+            if (fechaNacimiento.validity.rangeUnderflow || fechaNacimiento.validity.badInput) {
+                fechaNacimiento.setCustomValidity('Ingresa una fecha de nacimiento valida.');
+                return;
+            }
+
+            fechaNacimiento.setCustomValidity('');
+        });
+
+        fechaNacimiento?.addEventListener('input', () => {
+            fechaNacimiento.setCustomValidity('');
+        });
+    </script>
 
 </x-app-layout>
