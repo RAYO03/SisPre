@@ -13,7 +13,7 @@ class SolicitudAdminController extends Controller
 {
     public function index()
     {
-        $solicitudes = SolicitudPrestamo::with('user')->latest()->get();
+        $solicitudes = SolicitudPrestamo::with(['user', 'prestamo'])->latest()->get();
 
         return view('admin.solicitudes', compact('solicitudes'));
     }
