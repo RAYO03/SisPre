@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
+use App\Http\Controllers\ProfileController;
 
 //Controllers Cliente
 use App\Http\Controllers\Cliente\DashboardClienteController;
@@ -22,8 +24,32 @@ Route::get('/', function () {
     return view('welcome');
 })->name('inicio');
 
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user?->hasRole('admin')) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($user?->hasRole('cliente')) {
+        return redirect()->route('cliente.dashboard');
+    }
+
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
+    Volt::route('/settings/password', 'settings.password')->name('settings.password');
+    Volt::route('/settings/appearance', 'settings.appearance')->name('settings.appearance');
+});
+
 //Cliente
-Route::middleware(['auth', 'role:cliente'])->prefix('cliente')->name('cliente.')->group(function () {
+Route::middleware(['auth', 'role:cliente', 'cliente.profile.complete'])->prefix('cliente')->name('cliente.')->group(function () {
 
     Route::get('/dashboard', [DashboardClienteController::class, 'index'])
         ->middleware('permission:cliente.dashboard.ver')
@@ -146,15 +172,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         ->name('prestamos.show');
 
     Route::get('/prestamos/{id}/editar', [PrestamoAdminController::class, 'edit'])
-        ->middleware('permission:admin.prestamos.ver')
+        ->middleware('permission:admin.prestamos.editar')
         ->name('prestamos.edit');
 
     Route::put('/prestamos/{id}', [PrestamoAdminController::class, 'update'])
-        ->middleware('permission:admin.prestamos.ver')
+        ->middleware('permission:admin.prestamos.editar')
         ->name('prestamos.update');
 
     Route::delete('/prestamos/{id}', [PrestamoAdminController::class, 'destroy'])
-        ->middleware('permission:admin.prestamos.ver')
+        ->middleware('permission:admin.prestamos.eliminar')
         ->name('prestamos.destroy');
 
     // Pagos
