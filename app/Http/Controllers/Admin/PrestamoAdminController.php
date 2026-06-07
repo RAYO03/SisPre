@@ -18,7 +18,11 @@ class PrestamoAdminController extends Controller
     public function index()
     {
         $prestamos = Prestamo::with(['user', 'solicitud'])
-            ->where('estado', Estado::ACTIVO)
+            ->whereIn('estado', [
+                Estado::ACTIVO,
+                Estado::EN_MORA,
+                Estado::LIQUIDADO,
+            ])
             ->where(function ($query) {
                 $query->whereDoesntHave('solicitud')
                     ->orWhereHas('solicitud', fn ($solicitud) => $solicitud->where('estado', Estado::APROBADO));
@@ -116,6 +120,8 @@ class PrestamoAdminController extends Controller
             })
             ->findOrFail($id);
 
+        $this->abortIfLiquidado($prestamo);
+
         $clientes = User::role('cliente')
             ->orderBy('name')
             ->get();
@@ -141,6 +147,8 @@ class PrestamoAdminController extends Controller
                     ->orWhereHas('solicitud', fn ($solicitud) => $solicitud->where('estado', Estado::APROBADO));
             })
             ->findOrFail($id);
+
+        $this->abortIfLiquidado($prestamo);
 
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
@@ -197,6 +205,8 @@ class PrestamoAdminController extends Controller
             })
             ->findOrFail($id);
 
+        $this->abortIfLiquidado($prestamo);
+
         DB::transaction(function () use ($prestamo) {
             $prestamo->pagos()->delete();
             $prestamo->cuotas()->delete();
@@ -206,5 +216,14 @@ class PrestamoAdminController extends Controller
         return redirect()
             ->route('admin.prestamos')
             ->with('success', 'Préstamo eliminado correctamente.');
+    }
+
+    private function abortIfLiquidado(Prestamo $prestamo): void
+    {
+        abort_if(
+            $prestamo->estado === Estado::LIQUIDADO,
+            403,
+            'Los prestamos liquidados solo pueden consultarse.'
+        );
     }
 }
