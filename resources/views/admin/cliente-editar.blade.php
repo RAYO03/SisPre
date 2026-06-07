@@ -116,6 +116,9 @@
                                 <input type="text"
                                        name="telefono"
                                        value="{{ old('telefono', $cliente->telefono ?? '') }}"
+                                       maxlength="10"
+                                       pattern="[0-9]{10}"
+                                       required
                                        class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                             </div>
 
@@ -125,6 +128,9 @@
                                 </label>
                                 <input type="date"
                                        name="fecha_nacimiento"
+                                       id="fecha_nacimiento"
+                                       min="1900-01-01"
+                                       max="{{ now()->subYears(18)->toDateString() }}"
                                        value="{{ old('fecha_nacimiento', $cliente->fecha_nacimiento ?? '') }}"
                                        class="w-full rounded-2xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                             </div>
@@ -184,5 +190,27 @@
         </div>
 
     </div>
+
+    <script>
+        const fechaNacimiento = document.getElementById('fecha_nacimiento');
+
+        fechaNacimiento?.addEventListener('invalid', () => {
+            if (fechaNacimiento.validity.rangeOverflow) {
+                fechaNacimiento.setCustomValidity('Solo se aceptan fechas de nacimiento de usuarios mayores de edad.');
+                return;
+            }
+
+            if (fechaNacimiento.validity.rangeUnderflow || fechaNacimiento.validity.badInput) {
+                fechaNacimiento.setCustomValidity('Ingresa una fecha de nacimiento valida.');
+                return;
+            }
+
+            fechaNacimiento.setCustomValidity('');
+        });
+
+        fechaNacimiento?.addEventListener('input', () => {
+            fechaNacimiento.setCustomValidity('');
+        });
+    </script>
 
 </x-app-layout>
