@@ -26,7 +26,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'telefono' => ['required', 'regex:/^[0-9]{10}$/'],
+            'telefono' => ['required', 'regex:/^[0-9]{10}$/', 'unique:clientes,telefono'],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -75,7 +75,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <!-- Phone -->
         <div class="grid gap-2">
-            <flux:input wire:model="telefono" id="telefono" label="TelÃ©fono" type="tel" name="telefono" maxlength="10" pattern="[0-9]{10}" required autocomplete="tel" placeholder="TelÃ©fono" />
+            <flux:input wire:model="telefono" id="telefono" label="Telefono" type="tel" name="telefono" maxlength="10" pattern="[0-9]{10}" required autocomplete="tel" placeholder="Telefono" />
         </div>
 
         <!-- Password -->
