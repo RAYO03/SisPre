@@ -21,6 +21,8 @@ class RolePermissionSeeder extends Seeder
             'admin.clientes.ver',
             'admin.prestamos.ver',
             'admin.prestamos.crear',
+            'admin.prestamos.editar',
+            'admin.prestamos.eliminar',
             'admin.pagos.ver',
             'admin.pagos.crear',
             'admin.reportes.ver',
