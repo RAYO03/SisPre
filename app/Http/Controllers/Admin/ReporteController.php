@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Console\Commands\MarcarCuotasVencidas;
 use App\Http\Controllers\Controller;
 use App\Models\Cuota;
 use App\Models\Pago;
 use App\Models\Prestamo;
+use App\Services\PagoService;
 use App\Support\Estado;
+
 
 class ReporteController extends Controller
 {
-    public function index()
+    public function index(PagoService $pagoService)
     {
+        $pagoService->marcarCuotasVencidas();
+
         $totalPrestado = Prestamo::selectRaw('SUM(COALESCE(monto_original, monto_total)) as total')
             ->value('total') ?? 0;
 
