@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class ClienteAdminController extends Controller
 {
@@ -56,8 +58,50 @@ class ClienteAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'telefono' => 'nullable|string|max:20',
-            'fecha_nacimiento' => 'nullable|date',
+            'telefono' => [
+                'required',
+                'string',
+                'digits:10',
+                Rule::unique('clientes', 'telefono')->ignore($user->cliente?->id),
+            ],
+            'fecha_nacimiento' => [
+                'nullable',
+                'date_format:Y-m-d',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $value)) {
+                        $fail('Ingresa una fecha de nacimiento valida.');
+                        return;
+                    }
+
+                    try {
+                        $fecha = Carbon::createFromFormat('Y-m-d', (string) $value);
+                    } catch (\Throwable) {
+                        $fail('Ingresa una fecha de nacimiento valida.');
+                        return;
+                    }
+
+                    if (! $fecha || $fecha->format('Y-m-d') !== $value) {
+                        $fail('Ingresa una fecha de nacimiento valida.');
+                        return;
+                    }
+
+                    $fecha = $fecha->startOfDay();
+                    $fechaMinima = Carbon::create(1900, 1, 1)->startOfDay();
+                    $fechaMayorEdad = now()->subYears(18)->startOfDay();
+
+                    if ($fecha->lt($fechaMinima)) {
+                        $fail('Ingresa una fecha de nacimiento valida.');
+                    }
+
+                    if ($fecha->gt($fechaMayorEdad)) {
+                        $fail('Solo se aceptan fechas de nacimiento de usuarios mayores de edad.');
+                    }
+                },
+            ],
             'direccion' => 'nullable|string|max:255',
             'ciudad' => 'nullable|string|max:255',
             'estado' => 'nullable|string|max:255',
