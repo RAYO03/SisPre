@@ -47,6 +47,14 @@
                         ← Volver
                     </a>
 
+                    @if($prestamo->estado === \App\Support\Estado::LIQUIDADO)
+
+                        <span class="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-bold text-blue-700">
+                            Solo consulta
+                        </span>
+
+                    @else
+
                     <a href="{{ route('admin.prestamos.edit', $prestamo->id) }}"
                        class="rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:scale-105">
                         ✏️ Editar
@@ -65,6 +73,8 @@
                         </button>
 
                     </form>
+
+                    @endif
 
                 </div>
 
