@@ -138,7 +138,7 @@
                         </div>
 
                         <div class="rounded-2xl border border-purple-300 bg-white px-5 py-3 text-sm font-bold text-purple-700 shadow-sm">
-                            Total: {{ ($pagos ?? collect())->count() }}
+                            Total: {{ $pagos->total() }}
                         </div>
 
                     </div>
