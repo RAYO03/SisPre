@@ -24,7 +24,11 @@ function clienteUser(array $attributes = []): User
 
     Cliente::create([
         'user_id' => $user->id,
-        'telefono' => '6621234567',
+        'telefono' => '662' . str_pad((string) $user->id, 7, '0', STR_PAD_LEFT),
+        'fecha_nacimiento' => '1990-01-01',
+        'direccion' => 'Calle Test 123',
+        'ciudad' => 'Hermosillo',
+        'estado' => 'Sonora',
     ]);
 
     return $user;
@@ -108,6 +112,37 @@ test('admin no puede acceder a rutas del cliente', function () {
     $this->actingAs($admin)->get(route('cliente.dashboard'))->assertForbidden();
 });
 
+test('registro envia al cliente a completar perfil', function () {
+    $this->post(route('register'), [
+        'name' => 'Cliente Nuevo',
+        'email' => 'cliente-nuevo@example.com',
+        'telefono' => '6621234567',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])
+        ->assertRedirect(route('cliente.perfil.edit'));
+
+    $this->assertAuthenticated();
+});
+
+test('cliente con perfil incompleto es redirigido a editar perfil', function () {
+    $cliente = User::factory()->create();
+    $cliente->assignRole('cliente');
+
+    Cliente::create([
+        'user_id' => $cliente->id,
+        'telefono' => '6621234567',
+    ]);
+
+    $this->actingAs($cliente)
+        ->get(route('cliente.dashboard'))
+        ->assertRedirect(route('cliente.perfil.edit'));
+
+    $this->actingAs($cliente)
+        ->get(route('cliente.perfil.edit'))
+        ->assertOk();
+});
+
 test('solicitud de prestamo valida campos requeridos y opciones permitidas', function () {
     $cliente = clienteUser();
 
@@ -154,6 +189,58 @@ test('cliente crea solicitud valida con tasa calculada por el servicio', functio
     expect($solicitud->estado)->toBe(Estado::SOLICITADO);
 });
 
+test('cliente no puede actualizar perfil con fecha de nacimiento menor de edad', function () {
+    $cliente = clienteUser();
+
+    $this->actingAs($cliente)
+        ->from(route('cliente.perfil.edit'))
+        ->patch(route('cliente.perfil.update'), [
+            'name' => $cliente->name,
+            'email' => $cliente->email,
+            'telefono' => '6621234567',
+            'fecha_nacimiento' => '2008-11-21',
+        ])
+        ->assertSessionHasErrors([
+            'fecha_nacimiento' => 'Solo se aceptan fechas de nacimiento de usuarios mayores de edad.',
+        ])
+        ->assertRedirect(route('cliente.perfil.edit'));
+});
+
+test('cliente no puede actualizar perfil con fecha de nacimiento invalida', function () {
+    $cliente = clienteUser();
+
+    $this->actingAs($cliente)
+        ->from(route('cliente.perfil.edit'))
+        ->patch(route('cliente.perfil.update'), [
+            'name' => $cliente->name,
+            'email' => $cliente->email,
+            'telefono' => '6621234567',
+            'fecha_nacimiento' => '321831-04-23',
+        ])
+        ->assertSessionHasErrors(['fecha_nacimiento'])
+        ->assertRedirect(route('cliente.perfil.edit'));
+});
+
+test('cliente puede actualizar perfil con fecha de nacimiento mayor de edad', function () {
+    $cliente = clienteUser();
+
+    $this->actingAs($cliente)
+        ->patch(route('cliente.perfil.update'), [
+            'name' => $cliente->name,
+            'email' => $cliente->email,
+            'telefono' => '6621234567',
+            'fecha_nacimiento' => now()->subYears(18)->subDay()->format('Y-m-d'),
+            'direccion' => 'Calle Nueva 456',
+            'ciudad' => 'Hermosillo',
+            'estado' => 'Sonora',
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('cliente.perfil'));
+
+    expect($cliente->cliente->refresh()->fecha_nacimiento)
+        ->toBe(now()->subYears(18)->subDay()->format('Y-m-d'));
+});
+
 test('solicitud de prestamo rechaza monto mayor al maximo permitido', function () {
     $cliente = clienteUser();
 
@@ -194,6 +281,57 @@ test('admin crea prestamo activo con tabla de amortizacion', function () {
     expect((float) $prestamo->cuotas()->where('numero', 12)->first()->saldo_restante)->toBe(0.0);
 });
 
+test('admin ve prestamos activos en mora y liquidados en el listado', function () {
+    $admin = adminUser();
+    $cliente = clienteUser();
+
+    $activo = crearPrestamoParaCliente($cliente);
+    $enMora = crearPrestamoParaCliente($cliente, ['estado' => Estado::EN_MORA]);
+    $liquidado = crearPrestamoParaCliente($cliente, [
+        'estado' => Estado::LIQUIDADO,
+        'saldo_pendiente' => 0,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.prestamos'))
+        ->assertOk()
+        ->assertSee($activo->folio)
+        ->assertSee($enMora->folio)
+        ->assertSee($liquidado->folio)
+        ->assertSee('Activo')
+        ->assertSee('En mora')
+        ->assertSee('Liquidado');
+});
+
+test('admin no puede editar ni eliminar prestamos liquidados', function () {
+    $admin = adminUser();
+    $cliente = clienteUser();
+    $prestamo = crearPrestamoParaCliente($cliente, [
+        'estado' => Estado::LIQUIDADO,
+        'saldo_pendiente' => 0,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.prestamos.edit', $prestamo->id))
+        ->assertForbidden();
+
+    $this->actingAs($admin)
+        ->delete(route('admin.prestamos.destroy', $prestamo->id))
+        ->assertForbidden();
+
+    expect($prestamo->fresh())->not->toBeNull();
+});
+
+test('admin puede editar prestamos en mora', function () {
+    $admin = adminUser();
+    $cliente = clienteUser();
+    $prestamo = crearPrestamoParaCliente($cliente, ['estado' => Estado::EN_MORA]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.prestamos.edit', $prestamo->id))
+        ->assertOk();
+});
+
 test('admin no puede crear prestamo para un usuario sin rol cliente', function () {
     $admin = adminUser();
     $otroAdmin = adminUser();
@@ -232,6 +370,31 @@ test('pago parcial del cliente se aplica primero al interes ordinario', function
     expect((float) $pago->capital_pagado)->toBe(0.0);
     expect((float) $primeraCuota->monto_pagado)->toBe(50.0);
     expect($primeraCuota->estado)->toBe(Estado::PARCIALMENTE_PAGADA);
+});
+
+test('mis pagos muestra el total real aunque este paginado', function () {
+    $cliente = clienteUser();
+    $prestamo = crearPrestamoParaCliente($cliente);
+
+    foreach (range(1, 11) as $numero) {
+        Pago::create([
+            'prestamo_id' => $prestamo->id,
+            'user_id' => $cliente->id,
+            'folio_pago' => 'PG-TEST-' . str_pad((string) $numero, 3, '0', STR_PAD_LEFT),
+            'monto' => 100,
+            'interes_moratorio_pagado' => 0,
+            'interes_ordinario_pagado' => 10,
+            'capital_pagado' => 90,
+            'metodo_pago' => 'Transferencia',
+            'fecha_pago' => now()->toDateString(),
+            'estado' => Estado::LIQUIDADO,
+        ]);
+    }
+
+    $this->actingAs($cliente)
+        ->get(route('cliente.pagos'))
+        ->assertOk()
+        ->assertSee('Total: 11');
 });
 
 test('pago mayor a una cuota se reparte hacia la siguiente cuota', function () {
