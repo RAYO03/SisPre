@@ -8,6 +8,21 @@
         .animate-slide-up {
             animation: slideUp .8s ease-out forwards;
         }
+
+        .admin-loans-title,
+        .admin-loans-empty-title {
+            font-size: 0;
+        }
+
+        .admin-loans-title::after {
+            content: 'Prestamos';
+            font-size: 3rem;
+        }
+
+        .admin-loans-empty-title::after {
+            content: 'No hay prestamos registrados';
+            font-size: 1.25rem;
+        }
     </style>
 
     <div class="min-h-screen bg-slate-100 px-4 py-10">
@@ -19,8 +34,8 @@
                         Administración de préstamos
                     </span>
 
-                    <h1 class="mt-4 whitespace-nowrap text-5xl font-black bg-gradient-to-r from-purple-700 via-fuchsia-600 to-purple-800 bg-clip-text text-transparent">
-                        Préstamos Activos
+                    <h1 class="admin-loans-title mt-4 whitespace-nowrap text-5xl font-black bg-gradient-to-r from-purple-700 via-fuchsia-600 to-purple-800 bg-clip-text text-transparent">
+                        Préstamos Activos   
                     </h1>
 
                     <p class="mt-2 text-gray-500">
@@ -51,6 +66,7 @@
 
                         <thead class="bg-gradient-to-r from-purple-700 via-fuchsia-600 to-purple-800 text-white shadow-lg">
                             <tr>
+                                <th class="p-4 text-left">Folio</th>
                                 <th class="p-4 text-left">Cliente</th>
                                 <th class="p-4 text-right">Monto original</th>
                                 <th class="p-4 text-right">Monto total</th>
@@ -65,6 +81,10 @@
                         <tbody class="divide-y divide-gray-100">
                             @forelse($prestamos ?? [] as $prestamo)
                                 <tr class="transition hover:bg-purple-50/60">
+
+                                    <td class="p-4 whitespace-nowrap font-black text-gray-800">
+                                        {{ $prestamo->folio }}
+                                    </td>
 
                                     <td class="p-4 whitespace-nowrap">
                                         <div class="flex items-center gap-3">
@@ -128,13 +148,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="p-10 text-center">
+                                    <td colspan="9" class="p-10 text-center">
                                         <div class="mx-auto flex max-w-sm flex-col items-center">
                                             <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-purple-100 text-4xl">
                                                 💰
                                             </div>
 
-                                            <h3 class="text-xl font-black text-gray-800">
+                                            <h3 class="admin-loans-empty-title text-xl font-black text-gray-800">
                                                 No hay préstamos activos
                                             </h3>
 
