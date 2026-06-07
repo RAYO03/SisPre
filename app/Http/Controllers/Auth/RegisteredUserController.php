@@ -36,10 +36,11 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'telefono' => ['required', 'regex:/^[0-9]{10}$/'],
+            'telefono' => ['required', 'regex:/^[0-9]{10}$/', 'unique:clientes,telefono'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
             'telefono.regex' => 'El telefono debe tener 10 digitos numericos.',
+            'telefono.unique' => 'Este telefono ya esta registrado.',
         ]);
 
         $user = DB::transaction(function () use ($request) {
@@ -63,7 +64,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('cliente.dashboard', absolute: false))
-            ->with('success', 'Tu cuenta fue creada correctamente. Bienvenido.');
+        return redirect(route('cliente.perfil.edit', absolute: false))
+            ->with('success', 'Tu cuenta fue creada correctamente. Completa tu informacion personal para continuar.');
     }
 }
