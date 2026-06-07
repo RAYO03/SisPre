@@ -24,6 +24,7 @@
         .animate-float {
             animation: float 4s ease-in-out infinite;
         }
+
     </style>
 
     <div class="min-h-screen bg-slate-100 px-4 py-10">
@@ -162,16 +163,17 @@
 
                                             </div>
 
-                                        @elseif($solicitud->estado === \App\Support\Estado::APROBADO)
+                                        @elseif($solicitud->estado === \App\Support\Estado::APROBADO && $solicitud->prestamo)
 
-                                            <span class="rounded-full bg-green-100 px-4 py-2 text-xs font-bold text-green-700">
-                                                ✅ Aprobado
-                                            </span>
+                                            <a href="{{ route('admin.prestamos.show', $solicitud->prestamo->id) }}"
+                                               class="inline-flex rounded-2xl bg-blue-100 px-5 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-200">
+                                                Ver prestamo
+                                            </a>
 
                                         @else
 
-                                            <span class="rounded-full bg-red-100 px-4 py-2 text-xs font-bold text-red-700">
-                                                ❌ Rechazado
+                                            <span class="rounded-full bg-gray-100 px-4 py-2 text-xs font-bold text-gray-600">
+                                                Sin acciones pendientes
                                             </span>
 
                                         @endif
